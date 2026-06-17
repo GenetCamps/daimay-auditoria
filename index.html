@@ -365,7 +365,7 @@ function onPlantaChange(){
   // Reset responsable
   const liderEl2 = document.getElementById('lider');
   const correoEl2 = document.getElementById('correo-responsable');
-  if(liderEl2){ liderEl2.value=''; const autoP2=(planta==='Planta 1'||planta==='Planta Parras'); liderEl2.readOnly=autoP2; liderEl2.style.background=autoP2?'var(--bg3)':''; liderEl2.placeholder=autoP2?'Se llena automático al elegir área':'Nombre del responsable'; }
+  if(liderEl2){ liderEl2.value=''; const autoP2=['Planta 1','Planta Parras','Planta 3','Planta 4','Planta 6','Planta 7'].includes(planta); liderEl2.readOnly=autoP2; liderEl2.style.background=autoP2?'var(--bg3)':''; liderEl2.placeholder=autoP2?'Se llena automático al elegir área':'Nombre del responsable'; }
   if(correoEl2){ correoEl2.value=''; }
   
   if(!planta || !CATALOGO[planta]) return;
@@ -397,17 +397,27 @@ function autoFillResponsable(){
   const area   = document.getElementById('linea').value;
   const liderEl  = document.getElementById('lider');
   const correoEl = document.getElementById('correo-responsable');
-  
-  const respMap = planta === 'Planta 1' ? RESPONSABLES_P1 : planta === 'Planta Parras' ? RESPONSABLES_PARRAS : null;
+
+  const RESP_MAPS = {
+    'Planta 1': RESPONSABLES_P1,
+    'Planta Parras': RESPONSABLES_PARRAS,
+    'Planta 3': RESPONSABLES_P3,
+    'Planta 4': RESPONSABLES_P4,
+    'Planta 6': RESPONSABLES_P6,
+    'Planta 7': RESPONSABLES_P7,
+  };
+  const respMap = RESP_MAPS[planta] || null;
+  const autoPlant = !!respMap;
+
   if(respMap && area && respMap[area]){
     const r = respMap[area];
     liderEl.value  = r.responsable;
-    correoEl.value = r.correo;
+    correoEl.value = r.correo || '';
+    liderEl.readOnly = true;
+    liderEl.style.background = 'var(--bg3)';
   } else {
     liderEl.value  = '';
     correoEl.value = '';
-    // For other plants make it editable
-    const autoPlant = planta === 'Planta 1' || planta === 'Planta Parras';
     liderEl.readOnly = autoPlant;
     liderEl.style.background = autoPlant ? 'var(--bg3)' : '';
     liderEl.placeholder = 'Nombre del responsable';
