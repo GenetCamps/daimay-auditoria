@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auditoría 5S - Daimay Automotive Interior</title>
+<style>
+:root{
+  --bg:     #F2F2F7;
+  --bg2:    #FFFFFF;
+  --bg3:    #F8F8FA;
+  --bg4:    #EFEFEF;
+  --red:    #CC0000;
+  --red-h:  #E60000;
+  --red-d:  rgba(204,0,0,0.08);
+  --border: #D1D1D6;
+  --bord2:  #C7C7CC;
+  --text:   #1C1C1E;
+  --text2:  #3C3C43;
+  --text3:  #8E8E93;
+  --white:  #FFFFFF;
+  --green:  #34C759;
+  --yellow: #FF9500;
+  --shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.4;font-size:14px}
+.container{max-width:1100px;margin:0 auto;padding:16px;padding-bottom:100px}
+
+/* HEADER */
+.hdr{background:var(--bg2);border-radius:10px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:var(--shadow);border-bottom:3px solid var(--red)}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.hdr-logo{width:48px;height:48px;border-radius:8px;object-fit:contain;background:#fff;padding:2px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,0.12)}
+.hdr-title{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.hdr-sub{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:0.3px}
+.hdr-badge{background:var(--bg3);border:1.5px solid var(--border);padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;color:var(--text3);transition:all 0.3s}
+.hdr-badge.active{background:#FFF0F0;border-color:var(--red);color:var(--red)}
+
+/* CONFIG BANNER */
+/* config-banner eliminado */
+
+/* LEGEND */
+.levels-legend{background:var(--bg2);border-radius:10px;padding:10px 16px;margin-bottom:12px;border:1px solid var(--border);font-size:11px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;box-shadow:var(--shadow)}
+.levels-legend strong{color:var(--text3);font-size:10px;letter-spacing:0.5px;text-transform:uppercase;margin-right:4px}
+
+/* META CARD */
+.meta-card{background:var(--bg2);border-radius:10px;padding:18px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.meta-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px}
+.fg input,.fg select{font-size:13px;padding:9px 11px;border:1.5px solid var(--border);border-radius:7px;background:var(--bg3);color:var(--text);width:100%;font-family:inherit;transition:border 0.15s,box-shadow 0.15s;appearance:none;-webkit-appearance:none}
+.fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238E8E93' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(204,0,0,0.08);background:#fff}
+.fg select:disabled{color:var(--text3);background:var(--bg4)}
+
+/* CATS */
+.cat{background:var(--bg2);border-radius:10px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border)}
+.cat-hdr{padding:13px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.cat-name{font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px}
+.cat-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;font-size:14px;font-weight:800;color:#fff}
+.cat-pts{font-size:12px;padding:4px 12px;border-radius:12px;font-weight:700}
+.s1 .cat-hdr{background:#FFF5F5}.s1 .cat-num{background:var(--red)}.s1 .cat-name{color:#9B0000}.s1 .cat-pts{background:#FFE5E5;color:#9B0000}
+.s2 .cat-hdr{background:#F0FFF4}.s2 .cat-num{background:#1A7A34}.s2 .cat-name{color:#0A5C24}.s2 .cat-pts{background:#D4F5DE;color:#0A5C24}
+.s3 .cat-hdr{background:#FFF8F0}.s3 .cat-num{background:#C96000}.s3 .cat-name{color:#8A4000}.s3 .cat-pts{background:#FFE8CC;color:#8A4000}
+.s4 .cat-hdr{background:#F8F0FF}.s4 .cat-num{background:#6B2E91}.s4 .cat-name{color:#4A1E65}.s4 .cat-pts{background:#EDD9FF;color:#4A1E65}
+.s5 .cat-hdr{background:#F0F8FF}.s5 .cat-num{background:#0A6B8A}.s5 .cat-name{color:#064E66}.s5 .cat-pts{background:#CCE8F5;color:#064E66}
+
+/* ITEMS */
+.item{padding:15px 18px;border-bottom:1px solid #F2F2F7}
+.item:last-child{border-bottom:none}
+.item-num{display:inline-block;font-size:10px;font-weight:700;color:var(--text3);background:var(--bg3);padding:2px 8px;border-radius:10px;margin-bottom:7px;letter-spacing:0.5px;text-transform:uppercase;border:1px solid var(--border)}
+.item-desc{font-size:13px;color:var(--text);line-height:1.55;margin-bottom:10px;font-weight:500}
+.item-body{display:grid;grid-template-columns:1fr 270px;gap:16px;align-items:start}
+@media(max-width:720px){.item-body{grid-template-columns:1fr}}
+.item-q{font-size:11.5px;color:var(--text3);font-style:italic;line-height:1.5;padding:8px 12px;background:#FFF5F5;border-radius:6px;border-left:3px solid var(--red);margin-bottom:10px;opacity:0.9}
+.rangos-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.rangos-row{display:flex;gap:5px;flex-wrap:wrap}
+.rango-chip{padding:4px 9px;border-radius:10px;background:var(--bg4);border:1px solid var(--border);font-size:10px;color:var(--text2);font-weight:600;transition:all 0.2s;cursor:default}
+.rango-chip.active{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 2px 6px rgba(204,0,0,0.3)}
+
+/* INPUT CARD */
+.input-card{background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;transition:border 0.2s,box-shadow 0.2s}
+.input-card.has-score{background:#fff;border-color:var(--red);box-shadow:0 0 0 3px rgba(204,0,0,0.07)}
+.input-card .label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px}
+.hallazgo-input{font-size:26px;padding:10px 12px;border:1.5px solid var(--border);border-radius:7px;background:#fff;color:var(--text);text-align:center;font-weight:700;font-family:inherit;width:100%;transition:border 0.15s}
+.hallazgo-input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(204,0,0,0.08)}
+.hallazgo-input::placeholder{color:var(--text3);font-size:14px;font-weight:400}
+.score-display{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-radius:7px;font-size:11px;font-weight:700;background:var(--bg4);color:var(--text3);text-transform:uppercase;letter-spacing:0.5px}
+.score-display .val{font-size:20px;font-weight:800}
+.score-display.s-0{background:#FDE7E9;color:#A4262C}
+.score-display.s-1{background:#FFF4CE;color:#8A5C00}
+.score-display.s-2{background:#FFF4CE;color:#8A5C00}
+.score-display.s-3{background:#DFF6DD;color:#107C10}
+.score-display.s-4{background:#DFF6DD;color:#0B5A0B}
+.score-display.s-5{background:#E5F3FF;color:#0078D4}
+.upgrade-box{background:#FFFBE6;border:1px solid #FFD60A;border-radius:7px;padding:10px;font-size:11px;color:#7A5800;display:none}
+.upgrade-box.show{display:block}
+.upgrade-box .utitle{font-weight:700;margin-bottom:6px;font-size:12px}
+.upgrade-btns{display:flex;gap:6px;margin-top:6px}
+.upgrade-btn{flex:1;font-size:11px;padding:7px 8px;border:1.5px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-weight:700;color:var(--text2);transition:all 0.15s}
+.upgrade-btn.active-yes{background:#DFF6DD;color:#107C10;border-color:#107C10}
+.upgrade-btn.active-no{background:#FDE7E9;color:#A4262C;border-color:var(--red)}
+.obs-input{font-size:12px;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--text2);width:100%;margin-top:8px;font-family:inherit}
+.obs-input:focus{outline:none;border-color:var(--bord2)}
+
+/* SOSTENER */
+.cult-item{padding:15px 18px;border-bottom:1px solid #F2F2F7}
+.cult-item:last-child{border-bottom:none}
+.cult-options{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+@media(max-width:600px){.cult-options{grid-template-columns:repeat(2,1fr)}}
+.cult-btn{padding:10px 6px;border:1.5px solid var(--border);border-radius:7px;background:#fff;font-size:11px;cursor:pointer;text-align:center;font-weight:600;color:var(--text2);transition:all 0.15s;font-family:inherit}
+.cult-btn:hover{border-color:var(--red);color:var(--red);background:#FFF5F5}
+.cult-btn.active{background:#FFF0F0;color:var(--red);border-color:var(--red);font-weight:700;box-shadow:0 0 0 2px rgba(204,0,0,0.1)}
+.cult-btn .pts{display:block;font-size:9px;margin-top:2px;opacity:0.6;font-weight:400}
+
+/* SCORE PANEL */
+.score-panel{background:var(--bg2);border-radius:10px;padding:20px;margin:12px 0;box-shadow:var(--shadow);border:1px solid var(--border);border-top:3px solid var(--red)}
+.score-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.score-title::before{content:'';display:inline-block;width:3px;height:13px;background:var(--red);border-radius:2px}
+.score-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+@media(max-width:600px){.score-grid{grid-template-columns:repeat(2,1fr)}}
+.sc{padding:12px;border-radius:8px;text-align:center;background:var(--bg3);border:1px solid var(--border)}
+.sc-label{font-size:10px;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px}
+.sc-val{font-size:24px;font-weight:800}
+.sc-max{font-size:9px;opacity:0.5;margin-top:2px}
+.sc.s1-c{border-top:2px solid var(--red)}.sc.s1-c .sc-label,.sc.s1-c .sc-val{color:#9B0000}
+.sc.s2-c{border-top:2px solid #1A7A34}.sc.s2-c .sc-label,.sc.s2-c .sc-val{color:#0A5C24}
+.sc.s3-c{border-top:2px solid #C96000}.sc.s3-c .sc-label,.sc.s3-c .sc-val{color:#8A4000}
+.sc.s4-c{border-top:2px solid #6B2E91}.sc.s4-c .sc-label,.sc.s4-c .sc-val{color:#4A1E65}
+.sc.s5-c{border-top:2px solid #0A6B8A}.sc.s5-c .sc-label,.sc.s5-c .sc-val{color:#064E66}
+.bars{margin:12px 0 16px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.bar-name{font-size:10px;color:var(--text3);width:95px;flex-shrink:0;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.bar-track{flex:1;height:7px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.5s ease}
+.bar-pct{font-size:11px;font-weight:700;width:36px;text-align:right;color:var(--text2)}
+.total-section{display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px}
+.total-info{font-size:12px;color:var(--text3)}
+.total-display{display:flex;align-items:center;gap:14px}
+.total-val{font-size:46px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-2px}
+.level-pill{font-size:13px;font-weight:700;padding:6px 16px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px}
+.lvl-rem{background:#FDE7E9;color:#A4262C;border:1px solid #FFBFC5}
+.lvl-bro{background:#FFF0E0;color:#B84F00;border:1px solid #FF8C00}
+.lvl-pla{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.lvl-oro{background:#FFF8CC;color:#7A5500;border:1px solid #FFD700}
+.lvl-plt{background:#E5F3FF;color:#004578;border:1px solid #B3D7FF}
+
+/* ACCIONES */
+.actions{background:var(--bg2);border-radius:10px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border)}
+.actions-hdr{background:var(--bg3);padding:12px 18px;font-size:13px;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:0.5px}
+.actions-hdr::before{content:'';display:inline-block;width:3px;height:13px;background:var(--red);border-radius:2px}
+.action-row{display:grid;grid-template-columns:28px 1fr 155px 130px;gap:8px;padding:9px 18px;border-bottom:1px solid #F2F2F7;align-items:center}
+@media(max-width:720px){.action-row{grid-template-columns:28px 1fr}}
+.action-row:last-child{border-bottom:none}
+.action-num{font-size:12px;font-weight:800;color:var(--red);text-align:center}
+.action-row input{font-size:12px;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg3);color:var(--text);width:100%;font-family:inherit}
+.action-row input:focus{outline:none;border-color:var(--red);background:#fff}
+.action-row input::placeholder{color:var(--text3)}
+
+/* SUBMIT BAR */
+.submit-bar{position:sticky;bottom:0;background:rgba(242,242,247,0.95);backdrop-filter:blur(12px);padding:12px 16px;margin:0 -16px -100px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;z-index:10;box-shadow:0 -2px 10px rgba(0,0,0,0.06)}
+.submit-info{flex:1;font-size:11px;color:var(--text3)}
+.submit-info strong{color:var(--text);font-size:13px;font-weight:700}
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all 0.15s}
+.btn-primary{background:var(--red);color:#fff}
+.btn-primary:hover{background:var(--red-h);box-shadow:0 4px 12px rgba(204,0,0,0.3)}
+.btn-primary:disabled{background:var(--border);color:var(--text3);cursor:not-allowed;box-shadow:none}
+.btn-sec{background:#fff;color:var(--text2);border:1.5px solid var(--border)}
+.btn-sec:hover{background:var(--bg3)}
+.btn-green{background:#1A7A34;color:#fff}
+.btn-green:hover{background:var(--green)}
+
+/* MODAL */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;padding:24px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);border-top:3px solid var(--red)}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.modal-body{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--bord2)}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hdr">
+  <div class="hdr-left">
+    <img class="hdr-logo" src="data:image/webp;base64,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" alt="Daimay">
+    <div>
+      <div class="hdr-title">Auditoría 5S's — Daimay</div>
+      <div class="hdr-sub">FM-MOP-0061-DR · Rev.01 · Cálculo automático por hallazgos</div>
+    </div>
+  </div>
+  <div class="hdr-badge" id="level-hdr">Sin calificación</div>
+</div>
+
+<!-- config-banner eliminado: flujo vía email -->
+
+<div class="levels-legend">
+  <strong>Niveles:</strong>
+  <span class="level-pill lvl-rem">Remedial 0-3.4</span>
+  <span class="level-pill lvl-bro">Bronce 3.5-3.9</span>
+  <span class="level-pill lvl-pla">Plata 4.0-4.4</span>
+  <span class="level-pill lvl-oro">Oro 4.5-4.9</span>
+  <span class="level-pill lvl-plt">Platino 5.0</span>
+</div>
+
+<div class="meta-card">
+  <div class="meta-section-title">Datos de la auditoría</div>
+  <div class="meta-grid">
+    <div class="fg">
+      <label>Planta *</label>
+      <select id="planta" onchange="onPlantaChange()" required>
+        <option value="">— Seleccionar —</option>
+        <option>Planta 1</option><option>Planta 2</option><option>Planta 3</option>
+        <option>Planta 4</option><option>Planta 6</option><option>Planta 7</option>
+        <option>Planta 8</option><option>Planta Parras</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Departamento *</label>
+      <select id="departamento" disabled required>
+        <option value="">— Selecciona planta primero —</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Auditor(es) *</label>
+      <select id="auditor" disabled required>
+        <option value="">— Selecciona planta primero —</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Área auditada *</label>
+      <select id="linea" disabled required onchange="autoFillResponsable()">
+        <option value="">— Selecciona planta primero —</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Responsable de área</label>
+      <input type="text" id="lider" placeholder="Se llena automático al elegir área" readonly style="background:var(--bg3);color:var(--text2)">
+      <input type="hidden" id="correo-responsable" value="">
+      <input type="hidden" id="correo-responsable-cc1" value="">
+      <input type="hidden" id="correo-responsable-cc2" value="">
+    </div>
+    <div class="fg">
+      <label>Fecha *</label>
+      <input type="date" id="fecha" required>
+    </div>
+    <div class="fg">
+      <label>Turno</label>
+      <select id="turno">
+        <option value="">—</option>
+        <option>1er Turno</option><option>2do Turno</option><option>3er Turno</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div id="form-cats"></div>
+
+<div class="score-panel">
+  <div class="score-title">Calificación de auditoría</div>
+  <div class="score-grid">
+    <div class="sc s1-c"><div class="sc-label">1S Seleccionar</div><div class="sc-val" id="v1">—</div><div class="sc-max">/ 15 pts</div></div>
+    <div class="sc s2-c"><div class="sc-label">2S Ordenar</div><div class="sc-val" id="v2">—</div><div class="sc-max">/ 20 pts</div></div>
+    <div class="sc s3-c"><div class="sc-label">3S Limpiar</div><div class="sc-val" id="v3">—</div><div class="sc-max">/ 20 pts</div></div>
+    <div class="sc s4-c"><div class="sc-label">4S Estandarizar</div><div class="sc-val" id="v4">—</div><div class="sc-max">/ 15 pts</div></div>
+    <div class="sc s5-c"><div class="sc-label">5S Sostener</div><div class="sc-val" id="v5">—</div><div class="sc-max">/ 15 pts</div></div>
+  </div>
+  <div class="bars" id="bars"></div>
+  <div class="total-section">
+    <div class="total-info">
+      <div id="total-formula"><strong>Calificación total</strong> = suma / 17 preguntas</div>
+      <div style="margin-top:2px;font-size:10px">Máximo posible: 5.0 (Platino)</div>
+    </div>
+    <div class="total-display">
+      <div class="total-val" id="total-val">—</div>
+      <div class="level-pill lvl-pla" id="level-pill">Sin datos</div>
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <div class="actions-hdr">Registro de acciones correctivas</div>
+  <div id="actions-rows"></div>
+</div>
+
+<div class="submit-bar">
+  <div class="submit-info">
+    <strong id="info-status">Listo</strong><br>
+    <span id="info-detail">Selecciona planta y completa los datos obligatorios</span>
+  </div>
+  <button class="btn btn-sec" onclick="exportJSON()" title="Descarga el JSON como respaldo si la app de correo no abre">⬇ Respaldo JSON</button>
+  <button class="btn btn-primary" id="btn-submit" onclick="submitForm()">📧 Enviar Auditoría</button>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-btns" id="modal-btns"></div>
+  </div>
+</div>
+
+<script src="config.js?v=20260707b"></script>
+<script>
+// ============================================================
+// CONFIGURACIÓN cargada desde config.js (CATALOGO, RESPONSABLES_P1, RESPONSABLES_PARRAS)
+// ============================================================
+
+
+
+// ============================================================
+// FORMULARIO 5S — RANGOS EXACTOS FM-MOP-0061-DR Rev.01
+// ============================================================
+const CATS=[
+  {id:"s1",label:"Seleccionar",cls:"s1",num:"1",items:[
+    {id:"s1i1",title:"Solo lo necesario para la operación",desc:"Únicamente lo necesario para desempeñar la operación. Sin artículos personales, herramienta innecesaria, comida, tapetes antifatiga ni cualquier cosa que cause desorden.",cult:"¿Tu área está muy desordenada? ¿Cuándo fue la última vez que viste mucho desorden? ¿Hiciste algo al respecto?",rangos:[{label:">7",test:h=>h>7,score:0},{label:"6-7",test:h=>h>=6&&h<=7,score:1},{label:"4-5",test:h=>h>=4&&h<=5,score:2},{label:"3",test:h=>h===3,score:3},{label:"0-2",test:h=>h>=0&&h<=2,score:4}]},
+    {id:"s1i2",title:"Eliminar basura",desc:"No existe basura fuera de botes. Material reciclado en contenedor correcto. Botes vacíos si área no corre; sin exceder capacidad si corre.",cult:"¿Existen suficientes botes? ¿Cada cuándo se vacían? ¿Qué haces cuando está lleno?",rangos:[{label:">3",test:h=>h>3,score:0},{label:"3",test:h=>h===3,score:1},{label:"2",test:h=>h===2,score:2},{label:"1",test:h=>h===1,score:3},{label:"0",test:h=>h===0,score:4}]},
+    {id:"s1i3",title:"Área de scrap y contenedores",desc:"Identificación para scrap/material no conforme. Contenedores adecuados. Área de scrap delimitada con rojo en línea de producción.",cult:"¿Conoces el procedimiento de scrap? ¿Por qué es importante segregarlo?",rangos:[{label:">4",test:h=>h>4,score:0},{label:"3-4",test:h=>h>=3&&h<=4,score:1},{label:"2",test:h=>h===2,score:2},{label:"1",test:h=>h===1,score:3},{label:"0",test:h=>h===0,score:4}]}
+  ]},
+  {id:"s2",label:"Ordenar",cls:"s2",num:"2",items:[
+    {id:"s2i1",title:"Un lugar para cada cosa y cada cosa en su lugar",desc:"Todos los elementos con huella e identificación. Ningún elemento fuera de huella. Notorio cuando algo falta. Detección rápida de pertenencia.",cult:"¿Tiene artículos sin área específica? ¿Qué haces cuando alguien no guarda las cosas en su lugar?",rangos:[{label:">9",test:h=>h>9,score:0},{label:"7-9",test:h=>h>=7&&h<=9,score:1},{label:"4-6",test:h=>h>=4&&h<=6,score:2},{label:"2-3",test:h=>h>=2&&h<=3,score:3},{label:"0-1",test:h=>h>=0&&h<=1,score:4}]},
+    {id:"s2i2",title:"Cantidades y números de parte correctos",desc:"Sin NP sin uso en línea. NP etiquetados. Cantidad máxima distinguible. Sin exceso. Sistema FIFO activo.",cult:"¿Tienes material de sobra? ¿Sabes qué significa FIFO? ¿Lo llevas a cabo?",rangos:[{label:">4",test:h=>h>4,score:0},{label:"4",test:h=>h===4,score:1},{label:"3",test:h=>h===3,score:2},{label:"2",test:h=>h===2,score:3},{label:"0-1",test:h=>h>=0&&h<=1,score:4}]},
+    {id:"s2i3",title:"Diseño de la celda",desc:"Layout publicado (foto/diagrama). Área físicamente similar al layout. Muestra cantidad de personal y está marcado.",cult:"¿Cómo debe correr esta celda? ¿Se encuentra de la manera correcta?",rangos:[{label:">3",test:h=>h>3,score:0},{label:"3",test:h=>h===3,score:1},{label:"2",test:h=>h===2,score:2},{label:"1",test:h=>h===1,score:3},{label:"0",test:h=>h===0,score:4}]},
+    {id:"s2i4",title:"Layout de estación de trabajo",desc:"Movimientos ergonómicos en zona de strike. Imagen/diagrama de cómo debe estar. Estación se mira como debería.",cult:"¿Tu estación se mira como debería? ¿Todo lo tienes al alcance?",rangos:[{label:">5",test:h=>h>5,score:0},{label:"4-5",test:h=>h>=4&&h<=5,score:1},{label:"2-3",test:h=>h>=2&&h<=3,score:2},{label:"1",test:h=>h===1,score:3},{label:"0",test:h=>h===0,score:4}]}
+  ]},
+  {id:"s3",label:"Limpiar",cls:"s3",num:"3",items:[
+    {id:"s3i1",title:"Limpieza de pisos y superficies",desc:"Pisos libres de suciedad. Superficies sin polvo/grasa/aceite (escritorios, equipos, tablas). Área lista para recibir visita.",cult:"¿Cuáles son las expectativas de limpieza? ¿Existe sistema que asegure limpieza antes de irse?",rangos:[{label:">10",test:h=>h>10,score:0},{label:"8-10",test:h=>h>=8&&h<=10,score:1},{label:"5-7",test:h=>h>=5&&h<=7,score:2},{label:"3-4",test:h=>h>=3&&h<=4,score:3},{label:"1-2",test:h=>h>=1&&h<=2,score:4}]},
+    {id:"s3i2",title:"Estaciones de limpieza",desc:"Estación cercana. En buen estado, igual que artículos de limpieza. Fácil identificar elementos y si están en lugar correcto.",cult:"¿Sabes cuál es la estación más cercana? ¿Cuentas con todos los artículos?",rangos:[{label:">3",test:h=>h>3,score:0},{label:"3",test:h=>h===3,score:1},{label:"2",test:h=>h===2,score:2},{label:"1",test:h=>h===1,score:3},{label:"0",test:h=>h===0,score:4}]},
+    {id:"s3i3",title:"Equipo, techo, paredes, puertas, pisos",desc:"Limpios, pintura en buen estado, no descoloridos ni pelados.",cult:"¿Cómo están las condiciones del equipo, paredes, puertas y techos? ¿Hay mantenimiento periódico?",rangos:[{label:">3",test:h=>h>3,score:0},{label:"3",test:h=>h===3,score:1},{label:"2",test:h=>h===2,score:2},{label:"1",test:h=>h===1,score:3},{label:"0",test:h=>h===0,score:4}]},
+    {id:"s3i4",title:"Limpieza incluye inspección de equipos",desc:"Evidente cuando no se hizo mantenimiento preventivo. Condiciones anormales fáciles de detectar. Sistema de cierre de hallazgos activo.",cult:"¿Qué anomalías buscas en tu equipo? ¿Los mantenimientos preventivos están al corriente?",rangos:[{label:">5",test:h=>h>5,score:0},{label:"4-5",test:h=>h>=4&&h<=5,score:1},{label:"3",test:h=>h===3,score:2},{label:"2",test:h=>h===2,score:3},{label:"1",test:h=>h===1,score:4}]}
+  ]},
+  {id:"s4",label:"Estandarizar",cls:"s4",num:"4",items:[
+    {id:"s4i1",title:"Sistema de estandarización de colores",desc:"Existe un sistema de colores para la empresa y se sigue.",cult:"¿Conoces el sistema de colores? ¿Sabes dónde encontrar la guía y las huellas?",rangos:[{label:">3",test:h=>h>3,score:0},{label:"3",test:h=>h===3,score:1},{label:"2",test:h=>h===2,score:2},{label:"1",test:h=>h===1,score:3},{label:"0",test:h=>h===0,score:4}]},
+    {id:"s4i2",title:"Papelería",desc:"Acomodada, en buen estado y presentable. Espacio definido con identificación. Formatos llenos correctamente. Incluye pizarrones, SWIs, alertas de calidad, gráficas, KPIs.",cult:"¿Qué papelería usas? ¿Está al corriente y correctamente llena?",rangos:[{label:">3",test:h=>h>3,score:0},{label:"3",test:h=>h===3,score:1},{label:"2",test:h=>h===2,score:2},{label:"1",test:h=>h===1,score:3},{label:"0",test:h=>h===0,score:4}]},
+    {id:"s4i3",title:"Procedimientos estandarizados",desc:"Actividades con procedimiento estandarizado que se lleva a cabo. Incluye trabajo no-estándar y roles indirectos.",cult:"¿Tienes trabajo estandarizado? ¿Qué pasaría si encontraras una mejor manera?",rangos:[{label:">3",test:h=>h>3,score:0},{label:"3",test:h=>h===3,score:1},{label:"2",test:h=>h===2,score:2},{label:"1",test:h=>h===1,score:3},{label:"0",test:h=>h===0,score:4}]}
+  ]},
+  {id:"s5",label:"Sostener",cls:"s5",num:"5",special:true,items:[
+    {id:"s5i1",title:"Conocimiento de 5S's",desc:"El team member conoce las 5S's y es capaz de explicar por qué es importante este sistema.",cult:"¿Sientes que es importante el sistema? ¿Has sido capacitado? ¿Cómo le das soporte a tu área?",opts:[{label:"1S",score:1},{label:"2S",score:2},{label:"3S",score:3},{label:"4S",score:4},{label:"5S",score:5}]},
+    {id:"s5i2",title:"Fortalecimiento e interacción con 5S's",desc:"Todos los miembros han sido entrenados. Incluidos en proceso de auditoría. Área trabaja para hacer auto-dirigido el sistema.",cult:"¿Se realizan auditorías de 5S's? ¿Para tu área? ¿Para otras áreas también?",opts:[{label:"0% Cap.",score:1},{label:"25% Cap.",score:2},{label:"50% Cap.",score:3},{label:"75% Cap.",score:4},{label:"100% Cap.",score:5}]},
+    {id:"s5i3",title:"Cumplimiento de 5S's",desc:"Resultado anterior posteado y comunicado. Evidencia de acciones de mejora. Responsables y fechas asignadas.",cult:"¿Cuál fue tu calificación anterior? ¿Cuáles fueron las acciones de mejora?",opts:[{label:"No posteado",score:1},{label:"Posteado",score:2},{label:"Comunicado",score:3},{label:"Asignación",score:4},{label:"Cerradas",score:5}]}
+  ]}
+];
+
+const state={},cultUp={},cultScore={},obsState={};
+
+// ============================================================
+// DROPDOWNS DINÁMICOS POR PLANTA
+// ============================================================
+function onPlantaChange(){
+  const planta = document.getElementById('planta').value;
+  const selDeptos = document.getElementById('departamento');
+  const selAuditores = document.getElementById('auditor');
+  const selAreas = document.getElementById('linea');
+  
+  // Reset
+  [selDeptos, selAuditores, selAreas].forEach(s=>{
+    s.innerHTML = '<option value="">— Seleccionar —</option>';
+    s.disabled = !planta;
+  });
+  // Reset responsable
+  const liderEl2 = document.getElementById('lider');
+  const correoEl2 = document.getElementById('correo-responsable');
+  if(liderEl2){ liderEl2.value=''; const autoP2=['Planta 1','Planta Parras','Planta 3','Planta 4','Planta 6','Planta 7'].includes(planta); liderEl2.readOnly=autoP2; liderEl2.style.background=autoP2?'var(--bg3)':''; liderEl2.placeholder=autoP2?'Se llena automático al elegir área':'Nombre del responsable'; }
+  if(correoEl2){ correoEl2.value=''; }
+  
+  if(!planta || !CATALOGO[planta]) return;
+  
+  const data = CATALOGO[planta];
+  
+  data.departamentos.forEach(d=>{
+    const o = document.createElement('option');
+    o.value = o.textContent = d;
+    selDeptos.appendChild(o);
+  });
+  
+  data.auditores.forEach(a=>{
+    const o = document.createElement('option');
+    o.value = o.textContent = a.trim();
+    selAuditores.appendChild(o);
+  });
+  
+  data.areas.forEach(a=>{
+    const o = document.createElement('option');
+    o.value = o.textContent = a.trim();
+    selAreas.appendChild(o);
+  });
+  selAreas.onchange = autoFillResponsable;
+}
+
+function autoFillResponsable(){
+  const planta = document.getElementById('planta').value;
+  const area   = document.getElementById('linea').value;
+  const liderEl  = document.getElementById('lider');
+  const correoEl = document.getElementById('correo-responsable');
+  const cc1El    = document.getElementById('correo-responsable-cc1');
+  const cc2El    = document.getElementById('correo-responsable-cc2');
+
+  const RESP_MAPS = {
+    'Planta 1': RESPONSABLES_P1,
+    'Planta 2': RESPONSABLES_P2,
+    'Planta Parras': RESPONSABLES_PARRAS,
+    'Planta 3': RESPONSABLES_P3,
+    'Planta 4': RESPONSABLES_P4,
+    'Planta 6': RESPONSABLES_P6,
+    'Planta 7': RESPONSABLES_P7,
+  };
+  const respMap = RESP_MAPS[planta] || null;
+  const autoPlant = !!respMap;
+
+  if(respMap && area && respMap[area]){
+    const r = respMap[area];
+    liderEl.value  = r.responsable;
+    correoEl.value = r.correo || '';
+    cc1El.value    = r.correo2 || '';
+    cc2El.value    = r.correo3 || '';
+    liderEl.readOnly = true;
+    liderEl.style.background = 'var(--bg3)';
+  } else {
+    liderEl.value  = '';
+    correoEl.value = '';
+    cc1El.value    = '';
+    cc2El.value    = '';
+    liderEl.readOnly = autoPlant;
+    liderEl.style.background = autoPlant ? 'var(--bg3)' : '';
+    liderEl.placeholder = 'Nombre del responsable';
+  }
+}
+
+
+// ============================================================
+// CONFIG (sin HTTP trigger — flujo vía email)
+// ============================================================
+function initConfig(){ /* no-op */ }
+
+// ============================================================
+// RENDER CATEGORÍAS
+// ============================================================
+function buildCats(){
+  const c=document.getElementById('form-cats');
+  CATS.forEach(cat=>{
+    const div=document.createElement('div');div.className=`cat ${cat.cls}`;
+    const maxPts={s1:15,s2:20,s3:20,s4:15,s5:15}[cat.id];
+    let h=`<div class="cat-hdr"><div class="cat-name"><span class="cat-num">${cat.num}</span>${cat.label} (${cat.num}S)</div><span class="cat-pts" id="pts-${cat.id}">0 / ${maxPts} pts</span></div>`;
+    cat.items.forEach((item,idx)=>{
+      if(cat.special){
+        h+=`<div class="cult-item"><span class="item-num">Pregunta ${cat.num}.${idx+1}</span><div class="item-desc">${item.title}</div><div class="item-q">${item.desc}<br><em>${item.cult}</em></div><div class="cult-options">`;
+        item.opts.forEach(o=>{h+=`<button class="cult-btn" onclick="setCult('${item.id}',${o.score},this)">${o.label}<span class="pts">${o.score}pt</span></button>`;}); 
+        h+=`</div><input class="obs-input" type="text" placeholder="Observación..." oninput="obsState['${item.id}']=this.value"></div>`;
+      }else{
+        const chips=item.rangos.map((r,ri)=>`<span class="rango-chip" id="chip-${item.id}-${ri}">${r.label} → ${r.score}</span>`).join('');
+        h+=`<div class="item"><span class="item-num">Pregunta ${cat.num}.${idx+1}</span><div class="item-desc">${item.title}</div>
+          <div class="item-body">
+            <div><div class="item-q">${item.desc}<br><em>${item.cult}</em></div>
+            <div style="margin-top:8px"><div class="rangos-label">Escala — hallazgos → puntos</div><div class="rangos-row">${chips}</div></div>
+            <input class="obs-input" type="text" placeholder="Observación..." oninput="obsState['${item.id}']=this.value"></div>
+            <div class="input-card" id="card-${item.id}">
+              <div class="label"># Hallazgos encontrados</div>
+              <input type="number" min="0" class="hallazgo-input" id="inp-${item.id}" placeholder="0" oninput="setHallazgo('${item.id}',this.value)">
+              <div class="score-display" id="score-${item.id}">Puntaje <span class="val">—</span></div>
+              <div class="upgrade-box" id="upgrade-${item.id}">
+                <div class="utitle">⭐ Puntuación 4 — ¿Responde correctamente la pregunta de cultura?</div>
+                <div class="upgrade-btns">
+                  <button class="upgrade-btn" onclick="setUpgrade('${item.id}',true,this)">Sí → 5/5</button>
+                  <button class="upgrade-btn" onclick="setUpgrade('${item.id}',false,this)">No → 4/5</button>
+                </div>
+              </div>
+            </div>
+          </div></div>`;
+      }
+    });
+    div.innerHTML=h;c.appendChild(div);
+  });
+  buildActions();
+  document.getElementById('fecha').value=new Date().toISOString().split('T')[0];
+  initConfig();
+}
+
+// ============================================================
+// LÓGICA HALLAZGOS → PUNTAJE
+// ============================================================
+function setHallazgo(id,val){
+  if(val===''||val===null){state[id]=null;document.getElementById(`score-${id}`).innerHTML='Puntaje <span class="val">—</span>';document.getElementById(`score-${id}`).className='score-display';document.getElementById(`card-${id}`).classList.remove('has-score');document.querySelectorAll(`[id^="chip-${id}-"]`).forEach(c=>c.classList.remove('active'));document.getElementById(`upgrade-${id}`).classList.remove('show');cultUp[id]=false;updateScore();return;}
+  const h=parseInt(val);if(isNaN(h)||h<0)return;
+  let item;CATS.forEach(cat=>{if(!cat.special)cat.items.forEach(it=>{if(it.id===id)item=it;});});
+  if(!item)return;
+  let score=0,matchedIdx=-1;
+  item.rangos.forEach((r,idx)=>{if(r.test(h)){score=r.score;matchedIdx=idx;}});
+  state[id]=score;
+  document.querySelectorAll(`[id^="chip-${id}-"]`).forEach(c=>c.classList.remove('active'));
+  if(matchedIdx>=0)document.getElementById(`chip-${id}-${matchedIdx}`).classList.add('active');
+  const el=document.getElementById(`score-${id}`);el.className=`score-display s-${score}`;el.innerHTML=`Puntaje base <span class="val">${score}/4</span>`;
+  document.getElementById(`card-${id}`).classList.add('has-score');
+  if(score===4){document.getElementById(`upgrade-${id}`).classList.add('show');}else{document.getElementById(`upgrade-${id}`).classList.remove('show');cultUp[id]=false;}
+  updateScore();
+}
+function setUpgrade(id,val,btn){
+  cultUp[id]=val;btn.parentElement.querySelectorAll('.upgrade-btn').forEach(b=>b.classList.remove('active-yes','active-no'));btn.classList.add(val?'active-yes':'active-no');
+  const final=val?5:4;const el=document.getElementById(`score-${id}`);el.className=`score-display s-${final}`;el.innerHTML=`Puntaje final <span class="val">${final}/5</span>`;updateScore();
+}
+function setCult(id,score,btn){cultScore[id]=score;btn.closest('.cult-options').querySelectorAll('.cult-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');updateScore();}
+
+function updateScore(){
+  const cs={};let total=0,answered=0;const maxes={s1:15,s2:20,s3:20,s4:15,s5:15};
+  CATS.forEach(cat=>{
+    let sum=0;
+    cat.items.forEach(item=>{
+      if(cat.special){const v=cultScore[item.id];if(v!==undefined){sum+=v;total+=v;answered++;}}
+      else{const v=state[item.id];if(v!==undefined&&v!==null){const f=(v===4&&cultUp[item.id])?5:v;sum+=f;total+=f;answered++;}}
+    });
+    cs[cat.id]=sum;const el=document.getElementById(`pts-${cat.id}`);if(el)el.textContent=`${sum} / ${maxes[cat.id]} pts`;
+  });
+  ['s1','s2','s3','s4','s5'].forEach((k,i)=>{document.getElementById(`v${i+1}`).textContent=cs[k]||0;});
+  const bars=[{n:'1S Seleccionar',v:cs.s1||0,m:15,c:'#CC0000'},{n:'2S Ordenar',v:cs.s2||0,m:20,c:'#1A7A34'},{n:'3S Limpiar',v:cs.s3||0,m:20,c:'#C96000'},{n:'4S Estandarizar',v:cs.s4||0,m:15,c:'#6B2E91'},{n:'5S Sostener',v:cs.s5||0,m:15,c:'#0A6B8A'}];
+  document.getElementById('bars').innerHTML=bars.map(b=>{const pct=b.m>0?Math.round((b.v/b.m)*100):0;return `<div class="bar-row"><span class="bar-name">${b.n}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${b.c}"></div></div><span class="bar-pct">${pct}%</span></div>`;}). join('');
+  if(answered>0){
+    const calif=(total/17).toFixed(2);document.getElementById('total-val').textContent=calif;document.getElementById('total-formula').innerHTML=`<strong>Cálculo:</strong> ${total} / 17 = <strong>${calif}</strong>`;
+    const sc=parseFloat(calif);let cls,label;
+    if(sc<=3.4){cls='lvl-rem';label='Remedial';}else if(sc<=3.9){cls='lvl-bro';label='Bronce';}else if(sc<=4.4){cls='lvl-pla';label='Plata';}else if(sc<=4.9){cls='lvl-oro';label='Oro';}else{cls='lvl-plt';label='Platino';}
+    document.getElementById('level-pill').className=`level-pill ${cls}`;document.getElementById('level-pill').textContent=label;
+    const badge=document.getElementById('level-hdr');badge.textContent=`${label} · ${calif}`;badge.classList.add('active');
+    document.getElementById('info-status').textContent=`${label} — ${calif}`;document.getElementById('info-detail').textContent=`${answered}/17 preguntas contestadas`;
+  }
+}
+
+function buildActions(){
+  let h='';for(let i=1;i<=7;i++){h+=`<div class="action-row"><div class="action-num">${i}</div><input type="text" id="act-desc-${i}" placeholder="Descripción de la acción correctiva"><input type="text" id="act-resp-${i}" placeholder="Responsable"><input type="date" id="act-fecha-${i}"></div>`;}
+  document.getElementById('actions-rows').innerHTML=h;
+}
+
+function getPayload(){
+  const actions=[];for(let i=1;i<=7;i++){const d=document.getElementById(`act-desc-${i}`)?.value||'';const r=document.getElementById(`act-resp-${i}`)?.value||'';const f=document.getElementById(`act-fecha-${i}`)?.value||'';if(d||r||f)actions.push({n:i,descripcion:d,responsable:r,fecha:f});}
+  const hallazgos={},scoresFinales={};
+  CATS.forEach(cat=>{if(!cat.special){cat.items.forEach(it=>{const inp=document.getElementById(`inp-${it.id}`);if(inp&&inp.value!==''){hallazgos[it.id]=parseInt(inp.value);const base=state[it.id];scoresFinales[it.id]=(base===4&&cultUp[it.id])?5:base;}});}else{cat.items.forEach(it=>{if(cultScore[it.id]!==undefined)scoresFinales[it.id]=cultScore[it.id];});}} );
+  const sumCat=(catId)=>{let s=0;CATS.forEach(cat=>{if(cat.id===catId)cat.items.forEach(it=>{if(scoresFinales[it.id]!==undefined)s+=scoresFinales[it.id];});});return s;};
+  return{formulario:'FM-MOP-0061-DR-Rev01',Planta:document.getElementById('planta')?.value,Departamento:document.getElementById('departamento')?.value,LineaArea:document.getElementById('linea')?.value,Auditor:document.getElementById('auditor')?.value,LiderLinea:document.getElementById('lider')?.value||'',CorreoResponsable:document.getElementById('correo-responsable')?.value||'',CorreoCC1:document.getElementById('correo-responsable-cc1')?.value||'',CorreoCC2:document.getElementById('correo-responsable-cc2')?.value||'',FechaAuditoria:document.getElementById('fecha')?.value,Turno:document.getElementById('turno')?.value||'',Calificacion:parseFloat(document.getElementById('total-val')?.textContent)||0,Nivel:document.getElementById('level-pill')?.textContent||'Sin datos',S1_Score:sumCat('s1'),S2_Score:sumCat('s2'),S3_Score:sumCat('s3'),S4_Score:sumCat('s4'),S5_Score:sumCat('s5'),HallazgosJSON:JSON.stringify(hallazgos),ScoresJSON:JSON.stringify(scoresFinales),ObservacionesJSON:JSON.stringify(obsState),AccionesJSON:JSON.stringify(actions),
+    ObservacionesTexto:(()=>{const obs=Object.entries(obsState).filter(([k,v])=>v&&v.trim());return obs.length?obs.map(([k,v])=>`• ${k.toUpperCase()}: ${v}`).join('\n'):'Sin observaciones.';})(),
+    AccionesTexto:(()=>{if(!actions.length)return 'Sin acciones correctivas registradas.';return actions.map(a=>`#${a.n} | ${a.descripcion||'—'} | Responsable: ${a.responsable||'—'} | Fecha límite: ${a.fecha||'—'}`).join('\n');})(),
+    Timestamp:new Date().toISOString()};
+}
+
+// ============================================================
+// DESTINO DE ENVÍO
+// ============================================================
+const DESTINO_EMAIL = 'gcampos@daimayus.com';
+
+// ============================================================
+// SUBMIT — genera JSON codificado en Base64 y abre el correo
+// ============================================================
+function submitForm(){
+  const payload = getPayload();
+
+  if(!payload.Planta || !payload.LineaArea || !payload.Auditor || !payload.FechaAuditoria){
+    showModal('Faltan datos obligatorios','Completa los campos requeridos:\n• Planta\n• Área auditada\n• Auditor\n• Fecha',[{txt:'OK',fn:closeModal,pri:true}]);
+    return;
+  }
+  if(!payload.Calificacion || payload.Calificacion === 0){
+    showModal('Sin calificación','No has ingresado hallazgos en ninguna pregunta.\n¿Deseas enviar la auditoría de todos modos?',[
+      {txt:'Sí, enviar',fn:()=>{closeModal();_enviarEmail(payload);},pri:true},
+      {txt:'Cancelar',fn:closeModal}
+    ]);
+    return;
+  }
+  _enviarEmail(payload);
+}
+
+// Codifica un string UTF-8 a Base64 de forma segura (soporta acentos/ñ/emojis)
+function utf8ToBase64(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+function _enviarEmail(payload){
+  const asunto = `AUDITORIA_5S|${payload.Planta}|${payload.LineaArea}|${payload.Auditor}|${payload.FechaAuditoria}`;
+
+  // Este correo crudo (Base64) es solo para procesamiento interno vía
+  // Power Automate — va únicamente a DESTINO_EMAIL, sin CC. El correo
+  // "bonito" con copia a los responsables lo genera el flow más adelante,
+  // usando CorreoCC1/CorreoCC2 que ya viajan dentro del payload.
+
+  // JSON completo codificado en Base64 — sobrevive intacto en CUALQUIER
+  // cliente de correo (Gmail, Outlook, Apple Mail, Samsung Mail, etc.)
+  // porque Base64 solo usa [A-Za-z0-9+/=], sin comillas ni acentos.
+  const jsonTexto = JSON.stringify(payload);
+  const base64Data = utf8ToBase64(jsonTexto);
+
+  const bodyEmail =
+    'DAIMAY_5S_DATA_START' + base64Data + 'DAIMAY_5S_DATA_END' +
+    '\n\n--- No modificar el contenido de este correo ---\n' +
+    `Planta: ${payload.Planta} | Area: ${payload.LineaArea} | Auditor: ${payload.Auditor}\n` +
+    `Calificacion: ${payload.Calificacion} (${payload.Nivel})\n` +
+    `Fecha: ${payload.FechaAuditoria} | Turno: ${payload.Turno||'N/A'}\n` +
+    `Acciones: ${payload.AccionesTexto}`;
+
+  const mailtoLink =
+    'mailto:' + DESTINO_EMAIL +
+    '?subject=' + encodeURIComponent(asunto) +
+    '&body='    + encodeURIComponent(bodyEmail);
+
+  window.location.href = mailtoLink;
+
+  showModal(
+    '📧 App de correo abierta',
+    `El correo está listo con la auditoría.\n\nSolo presiona ENVIAR.\n\n` +
+    `Planta: ${payload.Planta}\nÁrea: ${payload.LineaArea}\nAuditor: ${payload.Auditor}\nCalificación: ${payload.Calificacion} (${payload.Nivel})\nFecha: ${payload.FechaAuditoria}`,
+    [
+      {txt:'Nueva auditoría',fn:()=>location.reload(),pri:true},
+      {txt:'Cerrar',fn:closeModal}
+    ]
+  );
+}
+
+// Descarga de respaldo en caso de problemas con Outlook
+function exportJSON(){
+  const payload=getPayload();
+  const nombre=`5S_${payload.Planta||'planta'}_${payload.Auditor||'auditor'}_${payload.FechaAuditoria||'fecha'}`.replace(/[^a-zA-Z0-9_\-]/g,'_');
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nombre+'.json';a.click();
+}
+function showModal(title,body,btns){document.getElementById('modal-title').textContent=title;document.getElementById('modal-body').style.whiteSpace='pre-line';document.getElementById('modal-body').textContent=body;document.getElementById('modal-btns').innerHTML='';btns.forEach(b=>{const el=document.createElement('button');el.textContent=b.txt;el.className='btn '+(b.pri?'btn-primary':'btn-sec');el.onclick=b.fn;document.getElementById('modal-btns').appendChild(el);});document.getElementById('modal').classList.add('show');}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+buildCats();
+</script>
+</body>
+</html>
