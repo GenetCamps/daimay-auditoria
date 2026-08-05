@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dotación de Arranque · Moldeo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0F1419; --panel:#161C24; --panel-2:#1D2530; --line:#2A333F;
+    --red:#CC0A0A; --red-soft:#E23A3A; --amber:#F5A524; --green:#22C55E; --blue:#3B82F6;
+    --txt:#E8EDF2; --txt-dim:#8A96A5; --txt-faint:#5A6675;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:'Inter','Noto Sans SC',system-ui,sans-serif;padding:24px;min-height:100vh}
+  .mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+  .zh{font-family:'Noto Sans SC','Inter',sans-serif}
+  .zh-line{display:block;font-size:.78em;color:var(--txt-dim);font-weight:500;margin-top:2px}
+  .zh-inline{font-family:'Noto Sans SC',sans-serif;opacity:.65;font-weight:500;margin-left:5px}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding-bottom:18px;margin-bottom:22px;border-bottom:1px solid var(--line);gap:14px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand .mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--red),#7a0606);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;color:#fff;box-shadow:0 0 24px rgba(204,10,10,.35);flex-shrink:0}
+  .brand h1{font-size:18px;font-weight:700;letter-spacing:-.2px;line-height:1.25}
+  .brand .sub{font-size:12px;color:var(--txt-dim);margin-top:2px;font-weight:500}
+  .head-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .clock{text-align:right}
+  .clock .d{font-size:12px;color:var(--txt-dim);font-weight:500}
+  .clock .t{font-size:16px;font-weight:700;letter-spacing:.5px}
+  .seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .seg button{background:none;border:none;color:var(--txt-dim);padding:7px 14px;font-size:12px;font-weight:600;border-radius:7px;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
+  .seg button.active{background:var(--panel-2);color:var(--txt);box-shadow:0 1px 0 rgba(255,255,255,.04)}
+  .live{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--green);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  .live .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(34,197,94,.5);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:16px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;position:relative;overflow:hidden}
+  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--txt-faint)}
+  .kpi.ok::before{background:var(--green)} .kpi.warn::before{background:var(--amber)} .kpi.bad::before{background:var(--red)}
+  .kpi .label{font-size:11px;color:var(--txt-dim);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .kpi .val{font-size:34px;font-weight:800;margin-top:10px;letter-spacing:-1px;line-height:1}
+  .kpi .val small{font-size:16px;font-weight:600;color:var(--txt-dim)}
+  .kpi .meta{display:flex;align-items:center;gap:6px;margin-top:9px;font-size:12px;color:var(--txt-dim);flex-wrap:wrap}
+  .chip{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+  .chip.up{background:rgba(34,197,94,.14);color:var(--green)} .chip.dn{background:rgba(204,10,10,.16);color:var(--red-soft)}
+
+  .grid{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:16px}
+  .grid-2{display:grid;grid-template-columns:1fr 1.4fr;gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .card h2{font-size:13px;font-weight:700;letter-spacing:.2px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .card h2 .tag{font-size:10px;color:var(--txt-faint);font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;text-align:right}
+  .chart-wrap{position:relative;height:230px;margin-top:14px}
+  .chart-wrap.sm{height:200px}
+
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th{font-size:10px;color:var(--txt-faint);font-weight:700;text-transform:uppercase;letter-spacing:.4px;text-align:right;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  td{font-size:13px;padding:11px 10px;border-bottom:1px solid rgba(42,51,63,.5);font-weight:500}
+  tr:last-child td{border-bottom:none}
+  .area-tag{font-weight:700}
+  .bar-cell{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+  .mini-bar{width:52px;height:6px;border-radius:3px;background:var(--panel-2);overflow:hidden}
+  .mini-bar span{display:block;height:100%;border-radius:3px}
+  .pct{width:42px;text-align:right;font-weight:700}
+
+  .alerts{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+  .alert{display:flex;gap:12px;padding:12px;border-radius:10px;background:var(--panel-2);border-left:3px solid var(--txt-faint)}
+  .alert.bad{border-color:var(--red)} .alert.warn{border-color:var(--amber)}
+  .alert .ico{font-size:16px;line-height:1.3}
+  .alert .txt{font-size:12.5px;line-height:1.45}
+  .alert .txt b{font-weight:700}
+  .alert .txt .when{color:var(--txt-faint);font-size:11px;font-weight:600;display:block;margin-top:3px}
+
+  footer{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:11px;color:var(--txt-faint);flex-wrap:wrap;gap:6px}
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.grid,.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="mark">D</div>
+    <div>
+      <h1 id="t-title">Dotación de Arranque · Moldeo</h1>
+      <div class="sub" id="t-sub">Planta 1 · Inyección · Áreas A / B</div>
+    </div>
+  </div>
+  <div class="head-right">
+    <div class="live"><span class="dot"></span><span id="t-live">En vivo</span></div>
+    <div class="seg" id="lang-seg">
+      <button class="active" data-lang="es">ES</button>
+      <button data-lang="zh">中文</button>
+      <button data-lang="both">ES+中</button>
+    </div>
+    <div class="seg" id="shift-seg">
+      <button class="active" data-shift="dia">☀ <span></span></button>
+      <button data-shift="noche">☾ <span></span></button>
+    </div>
+    <div class="clock">
+      <div class="d" id="date">—</div>
+      <div class="t mono" id="time">—</div>
+    </div>
+  </div>
+</header>
+
+<section class="kpis" id="kpis"></section>
+
+<section class="grid">
+  <div class="card">
+    <h2><span id="c1h"></span><span class="tag" id="c1t"></span></h2>
+    <div class="chart-wrap"><canvas id="trend"></canvas></div>
+  </div>
+  <div class="card">
+    <h2><span id="c2h"></span><span class="tag" id="c2t"></span></h2>
+    <div class="chart-wrap"><canvas id="roles"></canvas></div>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <h2><span id="c3h"></span><span class="tag" id="c3t"></span></h2>
+    <div class="chart-wrap sm"><canvas id="pareto"></canvas></div>
+  </div>
+  <div class="card">
+    <h2><span id="c4h"></span><span class="tag" id="c4t"></span></h2>
+    <table id="detail">
+      <thead><tr id="thead-row"></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="alerts" id="alerts"></div>
+  </div>
+</section>
+
+<footer>
+  <span id="foot-src"></span>
+  <span class="mono" id="foot-upd">—</span>
+</footer>
+
+<script>
+/* ============ i18n ============ */
+const T = {
+  es:{
+    title:'Dotación de Arranque · Moldeo', sub:'Planta 1 · Inyección · Áreas A / B', live:'En vivo',
+    dia:'Día', noche:'Noche',
+    kpi_dot:'Cumpl. dotación', kpi_maq:'Cumpl. máquinas', kpi_aus:'Ausentismo', kpi_sup:'Supervisores', kpi_tec:'Técnicos',
+    personas:'personas', arrancadas:'arrancadas', con_permiso:'con permiso', falta:n=>`falta ${n}`, completo:'completo',
+    en_rango:'en rango', sobre5:'sobre 5%', critico:'crítico', vs_meta:'vs meta',
+    c1h:'Cumplimiento de dotación · últimos 14 días', c1t:'Día vs Noche',
+    c2h:'Brecha por rol', c2t:'Requerido vs Presente',
+    c3h:'Pareto de fallas de arranque', c3t:'30 días',
+    c4h:'Detalle por área y turno', c4t:'Hoy',
+    th:['Área','Máquinas','Personal','Ausentes','Cumpl.'],
+    areaA:'Área A', areaB:'Área B',
+    leg:{dia:'Día',noche:'Noche',req:'Requerido',pres:'Presente',inc:'Incidencias',acum:'Acumulado'},
+    roles:{Supervisor:'Supervisor',Tecnico:'Técnico',Resinero:'Resinero'},
+    pareto:['Falta personal','Retardo técnico','Material tardío','Falla máquina','Permiso','Cambio molde','Otros'],
+    al_low:c=>[`Dotación al ${c}%`,'Turno bajo mínimo operativo. Riesgo de paro por línea.'],
+    al_sup:(r,d)=>[`Falta supervisor`,`Solo ${r} de ${d} presentes en arranque.`],
+    al_res:g=>[`Resinero incompleto`,`Faltan ${g} — riesgo en alimentación de material.`],
+    al_ok:['Arranque completo','Dotación y roles dentro de parámetros. Sin incidencias.'],
+    ago:m=>`hace ${m} min`,
+    foot_src:'Fuente: Captura de arranque en piso · SharePoint › Dotacion_Arranque_P1',
+    foot_upd:t=>`Actualizado ${t}`,
+    dateLocale:'es-MX'
+  },
+  zh:{
+    title:'注塑开机人员看板', sub:'一厂 · 注塑车间 · A区 / B区', live:'实时',
+    dia:'白班', noche:'晚班',
+    kpi_dot:'人员达标率', kpi_maq:'开机达标率', kpi_aus:'缺勤率', kpi_sup:'主管到岗', kpi_tec:'技术员到岗',
+    personas:'人', arrancadas:'台已开机', con_permiso:'人请假', falta:n=>`缺${n}人`, completo:'满员',
+    en_rango:'正常范围', sobre5:'超过5%', critico:'紧急', vs_meta:'对比目标',
+    c1h:'人员达标趋势 · 近14天', c1t:'白班 vs 晚班',
+    c2h:'岗位缺口', c2t:'应到 vs 实到',
+    c3h:'开机异常排列图', c3t:'近30天',
+    c4h:'分区分班明细', c4t:'今日',
+    th:['区域','机台','人员','缺勤','达标率'],
+    areaA:'A区', areaB:'B区',
+    leg:{dia:'白班',noche:'晚班',req:'应到',pres:'实到',inc:'异常次数',acum:'累计'},
+    roles:{Supervisor:'主管',Tecnico:'技术员',Resinero:'加料员'},
+    pareto:['缺人','技术员迟到','物料延迟','设备故障','请假','换模','其他'],
+    al_low:c=>[`到岗率${c}%`,'低于最低运行标准，存在停线风险。'],
+    al_sup:(r,d)=>[`缺主管`,`开机时仅到${r}人，应到${d}人。`],
+    al_res:g=>[`加料员不足`,`缺${g}人 — 存在物料供给风险。`],
+    al_ok:['开机正常','人员及岗位均达标，无异常。'],
+    ago:m=>`${m}分钟前`,
+    foot_src:'数据来源：现场开机登记 · SharePoint › Dotacion_Arranque_P1',
+    foot_upd:t=>`更新于 ${t}`,
+    dateLocale:'zh-CN'
+  }
+};
+// modo 'both': combina ES como principal + 中文 como línea secundaria (HTML) o " / " (texto plano para charts)
+let LANG='es'; // 'es' | 'zh' | 'both'
+
+function txt(key){ // texto simple para DOM, soporta HTML stacking en 'both'
+  const es=T.es[key], zh=T.zh[key];
+  if(LANG==='es')return es;
+  if(LANG==='zh')return zh;
+  return `${es}<span class="zh-line zh">${zh}</span>`;
+}
+function txtInline(key){ // para botones/tags cortos, en 'both' usa inline compacto
+  const es=T.es[key], zh=T.zh[key];
+  if(LANG==='es')return es;
+  if(LANG==='zh')return zh;
+  return `${es}<span class="zh-inline">${zh}</span>`;
+}
+function txtChart(key){ // texto plano para Chart.js (sin HTML)
+  const es=T.es[key], zh=T.zh[key];
+  if(LANG==='es')return es;
+  if(LANG==='zh')return zh;
+  return `${es} / ${zh}`;
+}
+function arr(key,i){ return LANG==='es'?T.es[key][i] : LANG==='zh'?T.zh[key][i] : `${T.es[key][i]} / ${T.zh[key][i]}`; }
+function rol(k){ return LANG==='es'?T.es.roles[k] : LANG==='zh'?T.zh.roles[k] : `${T.es.roles[k]}/${T.zh.roles[k]}`; }
+
+/* ============ DATOS SIMULADOS ============ */
+const rnd=(a,b)=>Math.round(a+Math.random()*(b-a));
+const pct=(r,p)=>p?Math.round(r/p*100):0;
+
+function genTurno(){
+  const maqProg=rnd(22,26), maqReal=Math.min(maqProg,rnd(maqProg-4,maqProg));
+  const persProg=rnd(46,54), persReal=Math.min(persProg,rnd(persProg-7,persProg));
+  const aus=persProg-persReal;
+  const roles={Supervisor:{debe:rnd(2,3),real:0}, Tecnico:{debe:rnd(4,6),real:0}, Resinero:{debe:rnd(3,5),real:0}};
+  for(const k in roles){roles[k].real=Math.min(roles[k].debe,roles[k].debe-rnd(0,2))}
+  return {maqProg,maqReal,persProg,persReal,aus,roles};
+}
+const data={dia:genTurno(),noche:genTurno()};
+let charts={};
+
+function color(v,good,warn){
+  if(v>=good)return{cls:'ok'}; if(v>=warn)return{cls:'warn'}; return{cls:'bad'};
+}
+
+function renderKPIs(shift){
+  const d=data[shift];
+  const cDot=pct(d.persReal,d.persProg), cMaq=pct(d.maqReal,d.maqProg);
+  const ausRate=Math.round(d.aus/d.persProg*100);
+  const supGap=d.roles.Supervisor.debe-d.roles.Supervisor.real;
+  const tecReal=d.roles.Tecnico.real, tecDebe=d.roles.Tecnico.debe;
+
+  const k1=color(cDot,95,85), k2=color(cMaq,92,82);
+  const k3=ausRate<=5?{cls:'ok'}:ausRate<=10?{cls:'warn'}:{cls:'bad'};
+  const k4=supGap===0?{cls:'ok'}:{cls:'bad'};
+  const k5=color(pct(tecReal,tecDebe),100,80);
+  const L=T[LANG==='both'?'es':LANG]||T.es;
+
+  const metaES=n=>LANG==='both'?`${n}<span class="zh-inline">${n===T.es[Object.keys({}).length]?'':''}</span>`:n;
+
+  const cards=[
+    {cls:k1.cls,label:txtInline('kpi_dot'),val:cDot+'<small>%</small>',
+      meta:`${d.persReal} / ${d.persProg} ${txtInline('personas')}`,chip:cDot>=95?'up':'dn',
+      delta:(cDot-90>=0?'+':'')+(cDot-90)+' '+txtInline('vs_meta')},
+    {cls:k2.cls,label:txtInline('kpi_maq'),val:cMaq+'<small>%</small>',
+      meta:`${d.maqReal} / ${d.maqProg} ${txtInline('arrancadas')}`,chip:cMaq>=92?'up':'dn',
+      delta:(d.maqReal-d.maqProg)+' '+(LANG==='zh'?'台':LANG==='both'?'máq<span class="zh-inline">台</span>':'máq')},
+    {cls:k3.cls,label:txtInline('kpi_aus'),val:ausRate+'<small>%</small>',
+      meta:`${d.aus} ${txtInline('con_permiso')}`,chip:ausRate<=5?'up':'dn',
+      delta:ausRate<=5?txtInline('en_rango'):txtInline('sobre5')},
+    {cls:k4.cls,label:txtInline('kpi_sup'),val:`${d.roles.Supervisor.real}<small>/${d.roles.Supervisor.debe}</small>`,
+      meta:supGap?txtInline('falta') && (LANG==='zh'?T.zh.falta(supGap):LANG==='both'?`falta ${supGap}<span class="zh-inline">${T.zh.falta(supGap)}</span>`:T.es.falta(supGap)):txtInline('completo'),
+      chip:supGap?'dn':'up', delta:supGap?txtInline('critico'):'OK'},
+    {cls:k5.cls,label:txtInline('kpi_tec'),val:`${tecReal}<small>/${tecDebe}</small>`,
+      meta:tecReal<tecDebe?(LANG==='zh'?T.zh.falta(tecDebe-tecReal):LANG==='both'?`falta ${tecDebe-tecReal}<span class="zh-inline">${T.zh.falta(tecDebe-tecReal)}</span>`:T.es.falta(tecDebe-tecReal)):txtInline('completo'),
+      chip:tecReal>=tecDebe?'up':'dn', delta:pct(tecReal,tecDebe)+'%'},
+  ];
+  document.getElementById('kpis').innerHTML=cards.map(c=>`
+    <div class="kpi ${c.cls}">
+      <div class="label">${c.label}</div>
+      <div class="val mono">${c.val}</div>
+      <div class="meta"><span class="chip ${c.chip}">${c.delta}</span> ${c.meta}</div>
+    </div>`).join('');
+}
+
+function renderTable(shift){
+  const src=data[shift];
+  const half=k=>Math.round(src[k]/2);
+  const areas=[
+    {tag:txtInline('areaA'),maqR:half('maqReal'),maqP:half('maqProg'),pR:half('persReal'),pP:half('persProg'),aus:Math.round(src.aus/2)},
+    {tag:txtInline('areaB'),maqR:src.maqReal-half('maqReal'),maqP:src.maqProg-half('maqProg'),pR:src.persReal-half('persReal'),pP:src.persProg-half('persProg'),aus:src.aus-Math.round(src.aus/2)},
+  ];
+  const tb=document.querySelector('#detail tbody');
+  tb.innerHTML=areas.map(r=>{
+    const c=pct(r.pR,r.pP);
+    const col=c>=95?'var(--green)':c>=85?'var(--amber)':'var(--red)';
+    return `<tr>
+      <td class="area-tag">${r.tag}</td>
+      <td class="mono">${r.maqR}/${r.maqP}</td>
+      <td class="mono">${r.pR}/${r.pP}</td>
+      <td class="mono">${r.aus}</td>
+      <td><div class="bar-cell">
+        <div class="mini-bar"><span style="width:${c}%;background:${col}"></span></div>
+        <span class="pct mono" style="color:${col}">${c}%</span>
+      </div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('thead-row').innerHTML = arrTH().map(h=>`<th>${h}</th>`).join('');
+}
+function arrTH(){
+  if(LANG==='es')return T.es.th;
+  if(LANG==='zh')return T.zh.th;
+  return T.es.th.map((h,i)=>`${h}<span class="zh-inline">${T.zh.th[i]}</span>`);
+}
+
+function agoTxt(m){
+  if(LANG==='es')return T.es.ago(m);
+  if(LANG==='zh')return T.zh.ago(m);
+  return `${T.es.ago(m)} / ${T.zh.ago(m)}`;
+}
+function renderAlerts(shift){
+  const d=data[shift];
+  const al=[];
+  const cDot=pct(d.persReal,d.persProg);
+  const mk=(type,ico,pair,when)=>({type,ico,b:pair[0],x:pair[1],when});
+  if(cDot<85)al.push(mk('bad','⛔',
+    LANG==='both'?[`${T.es.al_low(cDot)[0]} <span class="zh-inline">${T.zh.al_low(cDot)[0]}</span>`,`${T.es.al_low(cDot)[1]}<br><span class="zh-line zh">${T.zh.al_low(cDot)[1]}</span>`]
+    : LANG==='zh'?T.zh.al_low(cDot):T.es.al_low(cDot), agoTxt(4)));
+  if(d.roles.Supervisor.real<d.roles.Supervisor.debe)al.push(mk('bad','👤',
+    LANG==='both'?[`${T.es.al_sup(d.roles.Supervisor.real,d.roles.Supervisor.debe)[0]} <span class="zh-inline">${T.zh.al_sup(d.roles.Supervisor.real,d.roles.Supervisor.debe)[0]}</span>`,`${T.es.al_sup(d.roles.Supervisor.real,d.roles.Supervisor.debe)[1]}<br><span class="zh-line zh">${T.zh.al_sup(d.roles.Supervisor.real,d.roles.Supervisor.debe)[1]}</span>`]
+    : LANG==='zh'?T.zh.al_sup(d.roles.Supervisor.real,d.roles.Supervisor.debe):T.es.al_sup(d.roles.Supervisor.real,d.roles.Supervisor.debe),
+    agoTxt(12)));
+  if(d.roles.Resinero.real<d.roles.Resinero.debe)al.push(mk('warn','⚗',
+    LANG==='both'?[`${T.es.al_res(d.roles.Resinero.debe-d.roles.Resinero.real)[0]} <span class="zh-inline">${T.zh.al_res(d.roles.Resinero.debe-d.roles.Resinero.real)[0]}</span>`,`${T.es.al_res(d.roles.Resinero.debe-d.roles.Resinero.real)[1]}<br><span class="zh-line zh">${T.zh.al_res(d.roles.Resinero.debe-d.roles.Resinero.real)[1]}</span>`]
+    : LANG==='zh'?T.zh.al_res(d.roles.Resinero.debe-d.roles.Resinero.real):T.es.al_res(d.roles.Resinero.debe-d.roles.Resinero.real),
+    agoTxt(18)));
+  if(!al.length)al.push(mk('','✓',
+    LANG==='both'?[`${T.es.al_ok[0]} <span class="zh-inline">${T.zh.al_ok[0]}</span>`,`${T.es.al_ok[1]}<br><span class="zh-line zh">${T.zh.al_ok[1]}</span>`]
+    : LANG==='zh'?T.zh.al_ok:T.es.al_ok, agoTxt(6)));
+  document.getElementById('alerts').innerHTML=al.map(a=>`
+    <div class="alert ${a.type}">
+      <div class="ico">${a.ico}</div>
+      <div class="txt"><b>${a.b}</b> — ${a.x}<span class="when">${a.when}</span></div>
+    </div>`).join('');
+}
+
+/* ============ CHARTS ============ */
+Chart.defaults.color='#8A96A5';
+Chart.defaults.font.family="'Inter','Noto Sans SC',sans-serif";
+Chart.defaults.font.size=11;
+
+let trendData=null, rolesDataCache=null, paretoDataCache=null;
+
+function trendChart(){
+  if(!trendData){
+    const labels=Array.from({length:14},(_,i)=>{const dt=new Date();dt.setDate(dt.getDate()-(13-i));return dt.getDate()+'/'+(dt.getMonth()+1)});
+    const mk=()=>Array.from({length:14},()=>rnd(80,100));
+    trendData={labels,dia:mk(),noche:mk()};
+  }
+  if(charts.trend)charts.trend.destroy();
+  charts.trend=new Chart(document.getElementById('trend'),{type:'line',data:{labels:trendData.labels,datasets:[
+    {label:legTxt('dia'),data:trendData.dia,borderColor:'#F5A524',backgroundColor:'rgba(245,165,36,.08)',fill:true,tension:.35,borderWidth:2,pointRadius:0,pointHoverRadius:4},
+    {label:legTxt('noche'),data:trendData.noche,borderColor:'#3B82F6',backgroundColor:'rgba(59,130,246,.06)',fill:true,tension:.35,borderWidth:2,pointRadius:0,pointHoverRadius:4},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',align:'end',labels:{boxWidth:10,boxHeight:10,usePointStyle:true,padding:16}}},
+    scales:{y:{min:70,max:100,grid:{color:'rgba(42,51,63,.5)'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+}
+function legTxt(k){
+  if(LANG==='es')return T.es.leg[k]; if(LANG==='zh')return T.zh.leg[k]; return `${T.es.leg[k]} / ${T.zh.leg[k]}`;
+}
+
+function rolesChart(){
+  const r=data.dia.roles, n=data.noche.roles;
+  const cats=['Supervisor','Tecnico','Resinero'].map(rol);
+  const debe=[r.Supervisor.debe+n.Supervisor.debe,r.Tecnico.debe+n.Tecnico.debe,r.Resinero.debe+n.Resinero.debe];
+  const real=[r.Supervisor.real+n.Supervisor.real,r.Tecnico.real+n.Tecnico.real,r.Resinero.real+n.Resinero.real];
+  if(charts.roles)charts.roles.destroy();
+  charts.roles=new Chart(document.getElementById('roles'),{type:'bar',data:{labels:cats,datasets:[
+    {label:legTxt('req'),data:debe,backgroundColor:'#2A333F',borderRadius:5,barPercentage:.6},
+    {label:legTxt('pres'),data:real,backgroundColor:'#CC0A0A',borderRadius:5,barPercentage:.6},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',align:'end',labels:{boxWidth:10,boxHeight:10,usePointStyle:true,padding:16}}},
+    scales:{y:{beginAtZero:true,grid:{color:'rgba(42,51,63,.5)'},ticks:{precision:0}},x:{grid:{display:false},ticks:{font:{size:LANG==='both'?9.5:11}}}}}});
+}
+
+function paretoChart(){
+  if(!paretoDataCache){
+    const vals=T.es.pareto.map(()=>rnd(4,30)).sort((a,b)=>b-a);
+    paretoDataCache=vals;
+  }
+  const vals=paretoDataCache;
+  const cats=LANG==='es'?T.es.pareto:LANG==='zh'?T.zh.pareto:T.es.pareto.map((c,i)=>`${c} / ${T.zh.pareto[i]}`);
+  const tot=vals.reduce((a,b)=>a+b,0);
+  let acc=0; const cum=vals.map(v=>{acc+=v;return Math.round(acc/tot*100)});
+  if(charts.pareto)charts.pareto.destroy();
+  charts.pareto=new Chart(document.getElementById('pareto'),{data:{labels:cats,datasets:[
+    {type:'bar',label:legTxt('inc'),data:vals,backgroundColor:vals.map((_,i)=>i===0?'#CC0A0A':i<3?'#E23A3A':'#3A4552'),borderRadius:4,order:2,yAxisID:'y'},
+    {type:'line',label:legTxt('acum'),data:cum,borderColor:'#F5A524',borderWidth:2,pointRadius:2.5,pointBackgroundColor:'#F5A524',tension:.2,order:1,yAxisID:'y1'},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',align:'end',labels:{boxWidth:10,boxHeight:10,usePointStyle:true,padding:14}}},
+    scales:{y:{beginAtZero:true,grid:{color:'rgba(42,51,63,.5)'}},
+      y1:{position:'right',min:0,max:100,grid:{display:false},ticks:{callback:v=>v+'%'}},
+      x:{grid:{display:false},ticks:{maxRotation:40,minRotation:40,font:{size:LANG==='both'?8.5:10}}}}}});
+}
+
+/* ============ RENDER GLOBAL ============ */
+let current='dia';
+function paintText(){
+  document.getElementById('t-title').innerHTML=txt('title');
+  document.getElementById('t-sub').innerHTML=txt('sub');
+  document.getElementById('t-live').textContent=LANG==='both'?`${T.es.live} / ${T.zh.live}`:(LANG==='es'?T.es.live:T.zh.live);
+  document.querySelector('[data-shift="dia"] span').innerHTML=txtInline('dia');
+  document.querySelector('[data-shift="noche"] span').innerHTML=txtInline('noche');
+  document.getElementById('c1h').innerHTML=txt('c1h'); document.getElementById('c1t').innerHTML=txtInline('c1t');
+  document.getElementById('c2h').innerHTML=txt('c2h'); document.getElementById('c2t').innerHTML=txtInline('c2t');
+  document.getElementById('c3h').innerHTML=txt('c3h'); document.getElementById('c3t').innerHTML=txtInline('c3t');
+  document.getElementById('c4h').innerHTML=txt('c4h'); document.getElementById('c4t').innerHTML=txtInline('c4t');
+  document.getElementById('foot-src').textContent=LANG==='both'?`${T.es.foot_src}`:(LANG==='es'?T.es.foot_src:T.zh.foot_src);
+}
+function paintAll(shift){
+  paintText(); renderKPIs(shift); renderTable(shift); renderAlerts(shift);
+  trendChart(); rolesChart(); paretoChart(); clock();
+}
+function clock(){
+  const n=new Date();
+  const loc=LANG==='zh'?'zh-CN':'es-MX';
+  document.getElementById('date').textContent=n.toLocaleDateString(loc,{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('time').textContent=n.toLocaleTimeString(loc,{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const upd=LANG==='both'?`${T.es.foot_upd(n.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}))} / ${T.zh.foot_upd(n.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}))}`
+    : (LANG==='es'?T.es.foot_upd(n.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})):T.zh.foot_upd(n.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})));
+  document.getElementById('foot-upd').textContent=upd;
+}
+
+document.querySelectorAll('#shift-seg button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#shift-seg button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); current=b.dataset.shift; paintAll(current);
+});
+document.querySelectorAll('#lang-seg button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#lang-seg button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); LANG=b.dataset.lang; paintAll(current);
+});
+
+paintAll('dia');
+setInterval(clock,1000);
+</script>
+</body>
+</html>
