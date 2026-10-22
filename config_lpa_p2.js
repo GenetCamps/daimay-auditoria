@@ -71,6 +71,7 @@ const AUDITORES={
   ],
   "2": [
     "Daniel Estefan",
+    "Rodolfo Antonio Orduña Bautista",
     "Alejandra Silva",
     "Javier Garcia Berlanga",
     "Alberto Moreno",
