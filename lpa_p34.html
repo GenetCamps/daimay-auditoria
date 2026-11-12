@@ -235,26 +235,7 @@ body{font-family:'Segoe UI',-apple-system,sans-serif;background:#F5F4F4;color:va
 
 <div class="step-card">
   <div class="step-lbl">Paso 1 - Area a auditar</div>
-  <div class="tab-row" id="area-tabs">
-    <button class="tab-btn" onclick="selArea('headliner',this)">HL GM</button>
-    <button class="tab-btn" onclick="selArea('epc_headliner',this)">EPC GM</button>
-    <button class="tab-btn" onclick="selArea('hl_rivian',this)">HL Rivian</button>
-    <button class="tab-btn" onclick="selArea('rivian_puertas',this)">Door Panel Rivian</button>
-    <button class="tab-btn" onclick="selArea('back_panel_upper',this)">Back Panel Upper</button>
-    <button class="tab-btn" onclick="selArea('back_panel_lower',this)">Back Panel Lower</button>
-    <button class="tab-btn" onclick="selArea('laminado',this)">Corte y laminado</button>
-    <button class="tab-btn" onclick="selArea('epp_prensa_horno',this)">EPP Prensa</button>
-    <button class="tab-btn" onclick="selArea('horno',this)">EPP Horno</button>
-    <button class="tab-btn" onclick="selArea('epp_insp_empaque',this)">EPP insp. y empaque</button>
-    <button class="tab-btn" onclick="selArea('footwell',this)">Footwell</button>
-    <button class="tab-btn" onclick="selArea('rear_carpet',this)">Rear Carpet</button>
-    <button class="tab-btn" onclick="selArea('costura',this)">Costura</button>
-    <button class="tab-btn" onclick="selArea('everest',this)">Everest</button>
-    <button class="tab-btn" onclick="selArea('dqmc_hl_rivian',this)">DQMC HL Rivian</button>
-    <button class="tab-btn" onclick="selArea('dqmc_back_panel',this)">DQMC Back Panel</button>
-    <button class="tab-btn" onclick="selArea('dqmc_door_panel',this)">DQMC Door Panel</button>
-    <button class="tab-btn" onclick="selArea('dqmc_everest',this)">DQMC Everest</button>
-    <button class="tab-btn" onclick="selArea('moldeo',this)">Moldeo</button>
+  <div class="tab-row" id="area-tabs"><!-- se llena desde AREA_LABELS -->
   </div>
   <div class="step-hint show" id="hint-area">Selecciona el area que vas a auditar.</div>
 </div>
@@ -940,6 +921,11 @@ function guardarSharePoint() {
   showToast('Abriendo correo — presiona Enviar para guardar en SharePoint', 'success');
 }
 
+</script>
+<script>
+/* Áreas generadas desde AREA_LABELS (config). Se editan en admin.html */
+(function(){var c=document.getElementById('area-tabs');if(!c||typeof AREA_LABELS==='undefined')return;c.innerHTML='';
+Object.keys(AREA_LABELS).forEach(function(k){var b=document.createElement('button');b.className='tab-btn';b.type='button';b.textContent=AREA_LABELS[k];b.onclick=function(){selArea(k,b);};c.appendChild(b);});})();
 </script>
 </body>
 </html>

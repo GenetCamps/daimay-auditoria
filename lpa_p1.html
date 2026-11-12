@@ -241,12 +241,7 @@ body{font-family:'Segoe UI',-apple-system,sans-serif;background:#F5F4F4;color:va
 <!-- PASO 1: ÁREA -->
 <div class="step-card">
   <div class="step-lbl">Paso 1 — Área a auditar</div>
-  <div class="tab-row">
-    <button class="tab-btn" onclick="selArea('ensamble',this)">Ensamble</button>
-    <button class="tab-btn" onclick="selArea('moldeo',this)">Moldeo</button>
-    <button class="tab-btn" onclick="selArea('dqmc',this)">DQMC</button>
-    <button class="tab-btn" onclick="selArea('ensamble_ct',this)">Ensamble - Cambio de turno</button>
-    <button class="tab-btn" onclick="selArea('moldeo_ct',this)">Moldeo - Cambio de turno</button>
+  <div class="tab-row" id="area-tabs"><!-- se llena desde AREA_LABELS -->
   </div>
   <div class="step-hint show" id="hint-area">Selecciona el área que vas a auditar para habilitar el selector de nivel.</div>
 </div>
@@ -1289,6 +1284,11 @@ function guardarSharePoint() {
   showToast('Abriendo correo — presiona Enviar para guardar en SharePoint', 'success');
 }
 
+</script>
+<script>
+/* Áreas generadas desde AREA_LABELS (config). Se editan en admin.html */
+(function(){var c=document.getElementById('area-tabs');if(!c||typeof AREA_LABELS==='undefined')return;c.innerHTML='';
+Object.keys(AREA_LABELS).forEach(function(k){var b=document.createElement('button');b.className='tab-btn';b.type='button';b.textContent=AREA_LABELS[k];b.onclick=function(){selArea(k,b);};c.appendChild(b);});})();
 </script>
 </body>
 </html>

@@ -1,0 +1,13 @@
+{
+  "_nota": "Usuarios de GitHub. Los admins editan todo (incluido este archivo). Cada editor solo edita las apps donde aparece. Se edita desde admin.html > Permisos.",
+  "admins": [
+    "GenetCamps"
+  ],
+  "apps": [
+    { "id": "5s",      "nombre": "Auditoría 5S",     "tipo": "5s",  "archivo": "config.js",         "pagina": "index.html",   "editores": [] },
+    { "id": "lpa_p1",  "nombre": "LPA Planta 1",     "tipo": "lpa", "archivo": "config_lpa_p1.js",  "pagina": "lpa_p1.html",  "editores": [] },
+    { "id": "lpa_p2",  "nombre": "LPA Planta 2",     "tipo": "lpa", "archivo": "config_lpa_p2.js",  "pagina": "lpa_p2.html",  "editores": [] },
+    { "id": "lpa_p34", "nombre": "LPA Planta 3-4",   "tipo": "lpa", "archivo": "config_lpa_p34.js", "pagina": "lpa_p34.html", "editores": [] },
+    { "id": "lpa_p67", "nombre": "LPA Planta 6-7",   "tipo": "lpa", "archivo": "config_lpa_p67.js", "pagina": "lpa_p67.html", "editores": [] }
+  ]
+}

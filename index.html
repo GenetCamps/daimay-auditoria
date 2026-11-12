@@ -687,5 +687,11 @@ function showModal(title,body,btns){document.getElementById('modal-title').textC
 function closeModal(){document.getElementById('modal').classList.remove('show');}
 buildCats();
 </script>
+<script>
+/* Plantas generadas desde CATALOGO (config.js). Se editan en admin.html */
+(function(){var sel=document.getElementById('planta');if(!sel||typeof CATALOGO==='undefined')return;
+var cur=sel.value;sel.innerHTML='<option value="">— Seleccionar —</option>';
+Object.keys(CATALOGO).forEach(function(p){var o=document.createElement('option');o.textContent=p;sel.appendChild(o);});sel.value=cur;})();
+</script>
 </body>
 </html>
