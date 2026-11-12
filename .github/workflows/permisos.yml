@@ -1,0 +1,42 @@
+# Candado de permisos: si alguien que no es admin cambia un archivo que no le
+# toca (según permisos.json), este flujo deshace su cambio automáticamente.
+name: Revisar permisos
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: permisos
+  cancel-in-progress: false
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Revisar quién cambió qué
+        id: check
+        run: python3 .github/scripts/revisar_permisos.py "${{ github.actor }}" "${{ github.event.before }}" "${{ github.sha }}"
+        continue-on-error: true
+
+      - name: Deshacer cambio no permitido
+        if: steps.check.outcome == 'failure'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git revert --no-edit "${{ github.event.before }}..${{ github.sha }}"
+          git push
+          # Pide a GitHub Pages que vuelva a publicar la versión corregida
+          curl -s -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages/builds" || true
+          echo "::error::Cambio de ${{ github.actor }} revertido: no tiene permiso sobre esos archivos (ver permisos.json)."
+          exit 1

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor de Auditorías - Daimay</title>
+<meta name="robots" content="noindex">
+<script src="https://cdn.jsdelivr.net/npm/acorn@8.11.3/dist/acorn.js"></script>
+<style>
+:root{
+  --bg:#F4F2F1; --bg2:#FFFFFF; --bg3:#FAF8F7; --bg4:#EEEAE9;
+  --red:#D10A0A; --red-h:#E8140F; --red-d:rgba(209,10,10,0.08);
+  --border:#E3DEDD; --bord2:#CFC8C6;
+  --text:#1A1A1D; --text2:#3D3D44; --text3:#7E7A80;
+  --green:#1E8E3E; --green-d:rgba(30,142,62,0.10);
+  --yellow:#B26A00; --yellow-d:rgba(255,149,0,0.12);
+  --shadow:0 2px 10px rgba(60,15,15,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.4;font-size:14px}
+.wrap{max-width:1100px;margin:0 auto;padding:16px;padding-bottom:110px}
+.top{background:var(--bg2);border-radius:10px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow);border-left:4px solid var(--red)}
+.top h1{font-size:18px;letter-spacing:-.3px}
+.top .sub{font-size:11px;color:var(--text3)}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1.5px solid var(--border);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:var(--text2)}
+.chip.admin{background:#FFF0F0;border-color:var(--red);color:var(--red)}
+.card{background:var(--bg2);border-radius:10px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card h2{font-size:15px;margin-bottom:10px}
+.card h3{font-size:13px;margin:4px 0 8px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
+.muted{color:var(--text3);font-size:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+input[type=text],input[type=password],input[type=number],input[type=email],select,textarea{font:inherit;border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;background:#fff;color:var(--text);width:100%;min-width:0}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--red)}
+textarea{resize:vertical;min-height:64px}
+input.dup{border-color:var(--yellow);background:var(--yellow-d)}
+label.f{display:block;font-size:11px;font-weight:600;color:var(--text3);margin:6px 0 3px;text-transform:uppercase;letter-spacing:.3px}
+button{font:inherit;cursor:pointer;border-radius:7px;border:1.5px solid var(--bord2);background:#fff;color:var(--text2);padding:6px 12px;font-weight:600;font-size:13px;white-space:nowrap}
+button:hover{border-color:var(--red);color:var(--red)}
+button.pri{background:var(--red);border-color:var(--red);color:#fff}
+button.pri:hover{background:var(--red-h);color:#fff}
+button.pri:disabled{background:var(--bord2);border-color:var(--bord2);cursor:default}
+button.ic{padding:4px 8px;font-size:12px;min-width:30px}
+button.del:hover{background:var(--red);color:#fff}
+button:disabled{opacity:.45;cursor:default}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:7px 14px;font-weight:600;color:var(--text3)}
+.tab.on{background:var(--red);border-color:var(--red);color:#fff}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.pill{border-radius:16px;padding:5px 11px;font-size:12px;background:var(--bg3);border:1.5px solid var(--border);color:var(--text2)}
+.pill.on{border-color:var(--red);color:var(--red);background:#FFF0F0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.appcard{background:var(--bg2);border-radius:10px;padding:16px;box-shadow:var(--shadow);cursor:pointer;border:1.5px solid transparent;text-align:left;display:block;width:100%;white-space:normal}
+.appcard:hover{border-color:var(--red);color:inherit}
+.appcard b{display:block;font-size:15px;margin-bottom:4px;color:var(--text)}
+.li{display:flex;gap:6px;align-items:center;padding:3px 0}
+.li .n{width:26px;text-align:right;color:var(--text3);font-size:11px;flex-shrink:0}
+.list{max-height:460px;overflow:auto;padding-right:4px}
+.box{border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:10px;background:var(--bg3)}
+.box.sec{border-left:4px solid var(--red)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11px;text-transform:uppercase;color:var(--text3);text-align:left;padding:4px;letter-spacing:.3px}
+.tbl td{padding:3px 4px;vertical-align:middle}
+.tblwrap{overflow-x:auto}
+.badge{display:inline-block;font-size:11px;font-weight:700;border-radius:10px;padding:2px 8px}
+.b-ok{background:var(--green-d);color:var(--green)}
+.b-warn{background:var(--yellow-d);color:var(--yellow)}
+.b-crit{background:var(--red-d);color:var(--red)}
+.item{border:1px solid var(--border);border-radius:8px;background:#fff;margin:6px 0}
+.item .hd{display:flex;gap:8px;align-items:center;padding:7px 9px;cursor:pointer}
+.item .hd .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .bd{padding:4px 10px 10px;border-top:1px solid var(--border)}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--bg2);border-top:1.5px solid var(--border);padding:10px 16px;box-shadow:0 -2px 12px rgba(0,0,0,.06);z-index:10}
+.bar .in{max-width:1100px;margin:0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.msg{padding:9px 12px;border-radius:8px;margin-bottom:12px;font-size:13px}
+.msg.err{background:var(--red-d);color:var(--red)}
+.msg.ok{background:var(--green-d);color:var(--green)}
+.msg.warn{background:var(--yellow-d);color:var(--yellow)}
+ol.help{padding-left:20px;margin:6px 0}
+ol.help li{margin:4px 0}
+code{background:var(--bg4);padding:1px 5px;border-radius:4px;font-size:12px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle}
+@media (max-width:640px){.wrap{padding:10px}.hide-sm{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="bar" id="bar" style="display:none"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   admin.html — Editor de configuraciones (5S y LPA's)
+   Lee y guarda los mismos config*.js que usan las páginas, vía API
+   de GitHub. Los roles salen de permisos.json.
+   ════════════════════════════════════════════════════════════════ */
+'use strict';
+const DEFAULT_REPO = { owner: 'GenetCamps', name: 'daimay-auditoria' };
+const PERM_FILE = 'permisos.json';
+const LS_TOKEN = 'daimay_admin_token';
+
+const S = {
+  token: null, user: null, local: false,
+  repo: detectRepo(), branch: null,
+  perm: null, permSha: null,
+  view: 'login', app: null, file: null,
+  ui: {}, msg: null
+};
+
+function detectRepo() {
+  const q = new URLSearchParams(location.search).get('repo');
+  if (q && q.includes('/')) { const [o, n] = q.split('/'); return { owner: o, name: n }; }
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/i);
+  if (m) { const seg = location.pathname.split('/').filter(Boolean)[0]; if (seg && !seg.endsWith('.html')) return { owner: m[1], name: seg }; }
+  return { ...DEFAULT_REPO };
+}
+const isLocalHost = () => location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+
+/* ── helpers DOM ─────────────────────────────────────────────── */
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (k === 'class') el.className = v;
+    else if (k === 'style') el.style.cssText = v;
+    else if (k === 'value') el.value = v;
+    else if (k === 'checked') el.checked = !!v;
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of kids.flat(Infinity)) if (c != null && c !== false) el.append(c.nodeType ? c : String(c));
+  return el;
+}
+const clone = v => JSON.parse(JSON.stringify(v));
+const lc = s => String(s || '').trim().toLowerCase();
+function slug(s) {
+  return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'area';
+}
+function moveIdx(arr, i, d) { const j = i + d; if (j < 0 || j >= arr.length) return; [arr[i], arr[j]] = [arr[j], arr[i]]; }
+function reorderObj(obj, keys) { const o = {}; keys.forEach(k => o[k] = obj[k]); return o; }
+
+/* ── GitHub API ─────────────────────────────────────────────── */
+async function gh(path, opts = {}) {
+  const r = await fetch('https://api.github.com' + path, {
+    ...opts, cache: 'no-store',
+    headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + S.token, ...(opts.body ? { 'Content-Type': 'application/json' } : {}) }
+  });
+  if (!r.ok) {
+    let t = ''; try { t = (await r.json()).message || ''; } catch (e) {}
+    const err = new Error(r.status + ' ' + t); err.status = r.status; throw err;
+  }
+  return r.json();
+}
+const b64ToText = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\s/g, '')), c => c.charCodeAt(0)));
+function textToB64(t) {
+  const bytes = new TextEncoder().encode(t); let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+async function readFile(path) {
+  if (S.local) {
+    const r = await fetch(path + '?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('No se encontró ' + path); return { text: await r.text(), sha: null };
+  }
+  const j = await gh(`/repos/${S.repo.owner}/${S.repo.name}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(S.branch)}`);
+  if (j.content) return { text: b64ToText(j.content), sha: j.sha };
+  const blob = await gh(`/repos/${S.repo.owner}/${S.repo.name}/git/blobs/${j.sha}`); // archivos > 1MB
+  return { text: b64ToText(blob.content), sha: j.sha };
+}
+async function writeFile(path, text, sha, message) {
+  if (S.local) { // modo prueba: descarga el archivo en vez de publicar
+    const a = h('a', { href: URL.createObjectURL(new Blob([text], { type: 'text/plain' })), download: path.split('/').pop() });
+    document.body.append(a); a.click(); a.remove(); return { sha: null };
+  }
+  const j = await gh(`/repos/${S.repo.owner}/${S.repo.name}/contents/${encodeURIComponent(path)}`, {
+    method: 'PUT', body: JSON.stringify({ message, content: textToB64(text), sha: sha || undefined, branch: S.branch })
+  });
+  return { sha: j.content.sha };
+}
+
+/* ── Parseo de config*.js (conserva todo lo que no se edita) ──── */
+function parseConfig(text) {
+  const ast = acorn.parse(text, { ecmaVersion: 'latest', sourceType: 'script' });
+  const decls = [];
+  for (const node of ast.body) if (node.type === 'VariableDeclaration')
+    for (const d of node.declarations) if (d.id.type === 'Identifier' && d.init)
+      decls.push({ name: d.id.name, start: d.init.start, end: d.init.end, multiline: text.slice(d.init.start, d.init.end).includes('\n') });
+  const names = decls.map(d => d.name);
+  const vals = new Function(text + '\n;return {' + names.join(',') + '};')();
+  const editable = {}, orig = {};
+  for (const d of decls) {
+    let s; try { s = JSON.stringify(vals[d.name]); } catch (e) { s = undefined; }
+    if (s !== undefined) { editable[d.name] = JSON.parse(s); orig[d.name] = s; d.ok = true; }
+  }
+  return { decls, vals: editable, orig, nl: text.includes('\r\n') ? '\r\n' : '\n' };
+}
+function pretty(v, ind, nl) {
+  const s = JSON.stringify(v);
+  if (v === null || typeof v !== 'object' || s.length + ind.length <= 110) return s;
+  const ni = ind + '  ';
+  if (Array.isArray(v)) return '[' + nl + v.map(x => ni + pretty(x, ni, nl)).join(',' + nl) + nl + ind + ']';
+  return '{' + nl + Object.keys(v).map(k => ni + JSON.stringify(k) + ': ' + pretty(v[k], ni, nl)).join(',' + nl) + nl + ind + '}';
+}
+function changedNames() {
+  const f = S.file; if (!f) return [];
+  if (f.kind === 'perm') return JSON.stringify(S.perm) !== f.orig ? [PERM_FILE] : [];
+  return Object.keys(f.vals).filter(n => JSON.stringify(f.vals[n]) !== f.orig[n]);
+}
+function buildText() {
+  const f = S.file, ch = new Set(changedNames()); let t = f.text;
+  const ds = f.decls.filter(d => d.ok && ch.has(d.name)).sort((a, b) => b.start - a.start);
+  for (const d of ds) t = t.slice(0, d.start) + (d.multiline ? pretty(f.vals[d.name], '', f.nl) : JSON.stringify(f.vals[d.name])) + t.slice(d.end);
+  return t;
+}
+
+/* ── Permisos ───────────────────────────────────────────────── */
+const isAdmin = () => S.local || (S.perm && (S.perm.admins || []).some(a => lc(a) === lc(S.user)));
+const canEdit = app => isAdmin() || (app.editores || []).some(e => lc(e) === lc(S.user));
+
+/* ── Flujo de sesión ────────────────────────────────────────── */
+async function login(token) {
+  S.token = token.trim(); S.msg = null;
+  try {
+    const u = await gh('/user'); S.user = u.login;
+    const repo = await gh(`/repos/${S.repo.owner}/${S.repo.name}`);
+    S.branch = repo.default_branch;
+    if (!repo.permissions || !repo.permissions.push) throw new Error('NOPUSH');
+    const p = await readFile(PERM_FILE); S.perm = JSON.parse(p.text); S.permSha = p.sha;
+    try { localStorage.setItem(LS_TOKEN, S.token); } catch (e) {}
+    S.view = 'home';
+  } catch (e) {
+    const who = S.user; S.token = null; S.user = null;
+    if (e.message === 'NOPUSH') S.msg = ['err', `Tu usuario (${who || '?'}) no tiene permiso de escritura en el repositorio. Pide a un admin que te agregue como colaborador en GitHub.`];
+    else if (e.status === 401) S.msg = ['err', 'El token no es válido o expiró. Genera uno nuevo.'];
+    else if (e.status === 404) S.msg = ['err', 'No se encontró el repositorio o el archivo permisos.json.'];
+    else S.msg = ['err', 'No se pudo entrar: ' + e.message];
+    try { localStorage.removeItem(LS_TOKEN); } catch (er) {}
+  }
+  render();
+}
+async function loginLocal() {
+  S.local = true; S.user = 'local'; S.branch = 'local';
+  try { const p = await readFile(PERM_FILE); S.perm = JSON.parse(p.text); S.view = 'home'; }
+  catch (e) { S.msg = ['err', e.message]; S.local = false; }
+  render();
+}
+function logout() {
+  if (!confirmLeave()) return;
+  try { localStorage.removeItem(LS_TOKEN); } catch (e) {}
+  Object.assign(S, { token: null, user: null, local: false, perm: null, view: 'login', app: null, file: null, msg: null }); render();
+}
+function confirmLeave() { return !changedNames().length || confirm('Tienes cambios sin guardar. ¿Salir y perderlos?'); }
+
+async function openApp(app) {
+  S.msg = null; S.app = app; S.ui = {}; S.view = 'loading'; render();
+  try {
+    const { text, sha } = await readFile(app.archivo);
+    const p = parseConfig(text);
+    S.file = { kind: 'cfg', path: app.archivo, text, sha, ...p };
+    S.ui.tab = app.tipo === '5s' ? 'plantas' : 'auditores';
+    S.view = 'app';
+  } catch (e) { S.msg = ['err', 'No se pudo abrir ' + app.archivo + ': ' + e.message]; S.view = 'home'; }
+  render();
+}
+async function openPerm() {
+  S.msg = null; S.view = 'loading'; render();
+  try {
+    const p = await readFile(PERM_FILE); S.perm = JSON.parse(p.text); S.permSha = p.sha;
+    S.file = { kind: 'perm', path: PERM_FILE, sha: p.sha, orig: JSON.stringify(S.perm) };
+    S.app = { nombre: 'Permisos y usuarios' }; S.view = 'perm';
+  } catch (e) { S.msg = ['err', e.message]; S.view = 'home'; }
+  render();
+}
+function goHome() { if (!confirmLeave()) return; if (S.file && S.file.kind === 'perm') S.perm = JSON.parse(S.file.orig); S.file = null; S.app = null; S.view = 'home'; S.msg = null; render(); }
+
+/* ── Validación ─────────────────────────────────────────────── */
+function dupes(arr) { const seen = new Set(), d = new Set(); arr.forEach(x => { const k = lc(x); if (!k) return; if (seen.has(k)) d.add(k); seen.add(k); }); return d; }
+function cleanLists(v) { // quita espacios y renglones vacíos en listas de texto
+  if (Array.isArray(v)) {
+    if (v.every(x => typeof x === 'string')) return v.map(x => x.trim()).filter(Boolean);
+    return v.map(cleanLists);
+  }
+  if (v && typeof v === 'object') { for (const k of Object.keys(v)) v[k] = cleanLists(v[k]); }
+  return v;
+}
+function validate() {
+  const errs = [], f = S.file, v = f.vals;
+  if (f.kind === 'perm') {
+    if (!(S.perm.admins || []).filter(Boolean).length) errs.push('Debe quedar al menos un admin.');
+    if (!(S.perm.admins || []).some(a => lc(a) === lc(S.user)) && !S.local) errs.push('No puedes quitarte a ti mismo de admin (pídelo a otro admin).');
+    return errs;
+  }
+  for (const n of changedNames()) v[n] = cleanLists(v[n]);
+  if (S.app.tipo === '5s') {
+    for (const [p, c] of Object.entries(v.CATALOGO || {}))
+      for (const k of ['auditores', 'areas', 'departamentos']) { const d = dupes(c[k] || []); if (d.size) errs.push(`${p} › ${k}: repetidos (${[...d].join(', ')})`); }
+  } else {
+    for (const [n, a] of Object.entries(v.AUDITORES || {})) { const d = dupes(a); if (d.size) errs.push(`Auditores nivel ${n}: repetidos (${[...d].join(', ')})`); }
+    for (const [k, l] of Object.entries(v.AREA_LABELS || {})) if (!String(l).trim()) errs.push(`El área "${k}" no tiene nombre.`);
+    for (const [k, secs] of Object.entries(v.Q || {})) secs.forEach((s, i) => (s.items || []).forEach((it, j) => {
+      if (!String(it.elem || '').trim() && !String(it.desc || '').trim()) errs.push(`Preguntas ${k} › sección ${i + 1} › pregunta ${j + 1} está vacía.`);
+    }));
+    const ids = {}; for (const [k, secs] of Object.entries(v.Q || {})) secs.forEach(s => (s.items || []).forEach(it => { (ids[k] = ids[k] || new Set()); if (ids[k].has(it.id)) errs.push(`ID repetido en ${k}: ${it.id}`); ids[k].add(it.id); }));
+  }
+  return errs;
+}
+
+async function save() {
+  const ch = changedNames(); if (!ch.length) return;
+  const errs = validate();
+  if (errs.length) { S.msg = ['err', 'Corrige antes de guardar:\n• ' + errs.slice(0, 12).join('\n• ')]; render(); return; }
+  const note = (document.getElementById('commit-msg') || {}).value || '';
+  const msg = `Editor: ${S.app.nombre} (${ch.join(', ')}) por ${S.user}` + (note ? ' — ' + note : '');
+  if (!confirm(`Se publicarán los cambios en: ${ch.join(', ')}\n\nLas páginas se actualizan en 1–10 minutos. ¿Continuar?`)) return;
+  setBar('Guardando…');
+  try {
+    if (S.file.kind === 'perm') {
+      const text = JSON.stringify(S.perm, null, 2) + '\n';
+      const r = await writeFile(PERM_FILE, text, S.file.sha, msg);
+      S.file.sha = r.sha; S.file.orig = JSON.stringify(S.perm);
+    } else {
+      const text = buildText();
+      const chk = parseConfig(text); // verificación: el archivo nuevo debe leerse igual
+      for (const n of ch) if (JSON.stringify(chk.vals[n]) !== JSON.stringify(S.file.vals[n])) throw new Error('Verificación falló en ' + n);
+      const r = await writeFile(S.file.path, text, S.file.sha, msg);
+      Object.assign(S.file, { text, sha: r.sha, decls: chk.decls, orig: chk.orig });
+    }
+    S.msg = ['ok', S.local ? 'Modo prueba: se descargó el archivo (no se publicó nada).' : '✓ Guardado y publicado. Las páginas toman los cambios en unos minutos (recarga con Ctrl+F5).'];
+  } catch (e) {
+    S.msg = ['err', e.status === 409 || e.status === 422
+      ? 'Alguien más guardó este archivo mientras editabas. Copia tus cambios, recarga la app (Inicio) y vuelve a aplicarlos.'
+      : 'No se pudo guardar: ' + e.message];
+  }
+  render(); window.scrollTo(0, 0);
+}
+
+/* ── Barra inferior (guardar) ───────────────────────────────── */
+function setBar(busy) {
+  const bar = document.getElementById('bar');
+  if (!(S.view === 'app' || S.view === 'perm')) { bar.style.display = 'none'; return; }
+  const ch = changedNames(); bar.style.display = '';
+  bar.replaceChildren(h('div', { class: 'in' },
+    h('span', { class: 'muted grow' }, busy || (ch.length ? `Cambios sin guardar: ${ch.join(', ')}` : 'Sin cambios')),
+    h('input', { type: 'text', id: 'commit-msg', placeholder: 'Nota del cambio (opcional)', style: 'max-width:260px', class: 'hide-sm' }),
+    h('button', { disabled: !ch.length || !!busy, onclick: discard }, 'Descartar'),
+    h('button', { class: 'pri', disabled: !ch.length || !!busy, onclick: save }, S.local ? 'Descargar archivo' : 'Guardar y publicar')));
+}
+function discard() {
+  if (!confirm('¿Descartar todos los cambios sin guardar?')) return;
+  if (S.file.kind === 'perm') S.perm = JSON.parse(S.file.orig);
+  else for (const n of Object.keys(S.file.vals)) S.file.vals[n] = JSON.parse(S.file.orig[n]);
+  render();
+}
+const dirty = () => setBar();
+window.addEventListener('beforeunload', e => { if (changedNames().length) { e.preventDefault(); e.returnValue = ''; } });
+
+/* ── Componentes ────────────────────────────────────────────── */
+/* Lista de textos editable: agregar, quitar, ordenar, pegar varios */
+function ListEditor(getArr, opts = {}) {
+  const box = h('div');
+  const draw = () => {
+    const arr = getArr(); const d = dupes(arr);
+    const add = h('input', { type: 'text', placeholder: opts.placeholder || 'Agregar…', onkeydown: e => { if (e.key === 'Enter') doAdd(); } });
+    function doAdd() {
+      const vals = add.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean); if (!vals.length) return;
+      const ex = new Set(arr.map(lc)); const skip = [];
+      vals.forEach(v => { if (ex.has(lc(v))) skip.push(v); else { arr.push(v); ex.add(lc(v)); } });
+      if (skip.length) alert('Ya existían: ' + skip.join(', '));
+      draw(); dirty(); setTimeout(() => box.querySelector('.add-in')?.focus(), 0);
+    }
+    add.className = 'add-in';
+    box.replaceChildren(
+      h('div', { class: 'row', style: 'margin-bottom:6px' },
+        h('span', { class: 'muted grow' }, `${arr.length} ${opts.unit || 'elementos'}` + (d.size ? ` · ⚠ ${d.size} repetido(s)` : '')),
+        opts.sortable === false ? null : h('button', { class: 'ic', title: 'Ordenar A→Z', onclick: () => { arr.sort((a, b) => a.localeCompare(b, 'es')); draw(); dirty(); } }, 'A→Z'),
+        h('button', { class: 'ic', title: 'Pegar varios (uno por renglón)', onclick: () => {
+          const t = prompt('Pega la lista (uno por renglón). Se agregan al final; los repetidos se ignoran.');
+          if (t) { add.value = t; doAdd(); }
+        } }, 'Pegar varios')),
+      h('div', { class: 'list' }, arr.map((v, i) => h('div', { class: 'li' },
+        h('span', { class: 'n' }, i + 1),
+        h('input', { type: 'text', value: v, class: d.has(lc(v)) ? 'dup' : '', oninput: e => { arr[i] = e.target.value; dirty(); }, onchange: () => draw() }),
+        h('button', { class: 'ic', disabled: i === 0, onclick: () => { moveIdx(arr, i, -1); draw(); dirty(); } }, '↑'),
+        h('button', { class: 'ic', disabled: i === arr.length - 1, onclick: () => { moveIdx(arr, i, 1); draw(); dirty(); } }, '↓'),
+        h('button', { class: 'ic del', title: 'Quitar', onclick: () => { arr.splice(i, 1); draw(); dirty(); } }, '✕')))),
+      h('div', { class: 'row', style: 'margin-top:8px' }, h('div', { class: 'grow' }, add), h('button', { onclick: doAdd }, '+ Agregar')));
+  };
+  draw(); return box;
+}
+function Pills(items, cur, onPick, extra) {
+  return h('div', { class: 'pills' }, items.map(([k, label]) => h('button', { class: 'pill' + (k === cur ? ' on' : ''), onclick: () => onPick(k) }, label)), extra || null);
+}
+function Tabs(list) {
+  return h('div', { class: 'tabs' }, list.filter(Boolean).map(([k, label]) =>
+    h('button', { class: 'tab' + (S.ui.tab === k ? ' on' : ''), onclick: () => { S.ui.tab = k; render(); } }, label)));
+}
+function Field(label, input) { return h('div', null, h('label', { class: 'f' }, label), input); }
+function TextIn(obj, key, attrs = {}) { return h('input', { type: 'text', value: obj[key] ?? '', ...attrs, oninput: e => { obj[key] = e.target.value; dirty(); } }); }
+function Area(obj, key, attrs = {}) { return h('textarea', { ...attrs, value: obj[key] ?? '', oninput: e => { obj[key] = e.target.value; dirty(); } }); }
+
+/* ── Pantallas ──────────────────────────────────────────────── */
+function render() {
+  const root = document.getElementById('app');
+  const top = h('div', { class: 'top' },
+    h('div', null, h('h1', null, 'Editor de Auditorías'),
+      h('div', { class: 'sub' }, `5S y LPA's · ${S.repo.owner}/${S.repo.name}` + (S.local ? ' · MODO PRUEBA LOCAL' : ''))),
+    S.user ? h('div', { class: 'row' },
+      S.view !== 'home' ? h('button', { onclick: goHome }, '← Inicio') : null,
+      h('span', { class: 'chip' + (isAdmin() ? ' admin' : '') }, (isAdmin() ? 'Admin · ' : 'Editor · ') + S.user),
+      h('button', { onclick: logout }, 'Salir')) : null);
+  const msg = S.msg ? h('div', { class: 'msg ' + S.msg[0], style: 'white-space:pre-line' }, S.msg[1]) : null;
+  let body;
+  if (S.view === 'login') body = viewLogin();
+  else if (S.view === 'loading') body = h('div', { class: 'card muted' }, 'Cargando…');
+  else if (S.view === 'home') body = viewHome();
+  else if (S.view === 'perm') body = viewPerm();
+  else if (S.view === 'app') body = S.app.tipo === '5s' ? view5S() : viewLPA();
+  root.replaceChildren(top, msg || '', body);
+  setBar();
+}
+
+function viewLogin() {
+  const tok = h('input', { type: 'password', placeholder: 'Pega aquí tu token de GitHub (ghp_…)', onkeydown: e => { if (e.key === 'Enter') login(tok.value); } });
+  const tokenUrl = 'https://github.com/settings/tokens/new?scopes=public_repo&description=Editor%20Auditorias%20Daimay';
+  return h('div', null,
+    h('div', { class: 'card' }, h('h2', null, 'Entrar'),
+      h('div', { class: 'row' }, h('div', { class: 'grow' }, tok), h('button', { class: 'pri', onclick: () => login(tok.value) }, 'Entrar')),
+      h('p', { class: 'muted', style: 'margin-top:8px' }, 'El token se guarda solo en este navegador. Usa "Salir" en equipos compartidos.'),
+      isLocalHost() ? h('div', { style: 'margin-top:12px' }, h('button', { onclick: loginLocal }, 'Modo prueba local (sin GitHub, descarga archivos)')) : null),
+    h('div', { class: 'card' }, h('h2', null, 'Primera vez (se hace una sola vez)'),
+      h('ol', { class: 'help' },
+        h('li', null, 'Crea una cuenta gratis en ', h('a', { href: 'https://github.com/signup', target: '_blank' }, 'github.com'), ' y manda tu usuario a un admin.'),
+        h('li', null, 'El admin te agrega como colaborador del repositorio y en "Permisos" de este editor.'),
+        h('li', null, 'Acepta la invitación que te llega por correo.'),
+        h('li', null, 'Crea tu token: ', h('a', { href: tokenUrl, target: '_blank' }, 'abrir GitHub › Generate token'),
+          ' — deja marcado solo ', h('code', null, 'public_repo'), ', elige vencimiento (ej. 1 año), clic en "Generate token" y copia el código.'),
+        h('li', null, 'Pégalo arriba y da "Entrar".'))));
+}
+
+function viewHome() {
+  const apps = (S.perm.apps || []).filter(canEdit);
+  return h('div', null,
+    h('div', { class: 'card' }, h('h2', null, 'Elige qué quieres editar'),
+      apps.length ? h('div', { class: 'grid' }, apps.map(a => h('button', { class: 'appcard', onclick: () => openApp(a) },
+        h('b', null, a.nombre), h('span', { class: 'muted' }, a.tipo === '5s' ? 'Plantas, auditores, áreas, departamentos, responsables' : 'Auditores, áreas, líneas/operaciones, preguntas'))),
+        isAdmin() ? h('button', { class: 'appcard', onclick: openPerm, style: 'border-color:var(--red)' }, h('b', null, '👥 Permisos y usuarios'), h('span', { class: 'muted' }, 'Admins, editores por app')) : null)
+        : h('p', { class: 'muted' }, 'Tu usuario no tiene apps asignadas todavía. Pide a un admin que te agregue en Permisos.')),
+    h('div', { class: 'card muted' }, 'Los cambios se publican en las páginas de auditoría (GitHub Pages) en 1–10 minutos. Cada guardado queda registrado con tu usuario en el historial del repositorio, así que cualquier cambio se puede revertir.'));
+}
+
+/* ── 5S ─────────────────────────────────────────────────────── */
+function view5S() {
+  const v = S.file.vals; v.CATALOGO = v.CATALOGO || {}; v.RESPONSABLES = v.RESPONSABLES || {};
+  const tabs = Tabs([['plantas', 'Plantas'], ['general', 'General'], isAdmin() && ['avanzado', 'Avanzado']]);
+  if (S.ui.tab === 'general') return h('div', null, tabs, h('div', { class: 'card' }, h('h2', null, 'General'),
+    'MAIL_DESTINO' in v ? Field('Correo que recibe las auditorías (flujo de Power Automate)', TextIn(v, 'MAIL_DESTINO')) : null,
+    'MAILTO_MAX' in v ? Field('Largo máximo del link de correo (MAILTO_MAX)', h('input', { type: 'number', value: v.MAILTO_MAX, oninput: e => { v.MAILTO_MAX = Number(e.target.value) || 0; dirty(); } })) : null));
+  if (S.ui.tab === 'avanzado') return h('div', null, tabs, viewAdvanced());
+
+  const plantas = Object.keys(v.CATALOGO);
+  if (!plantas.includes(S.ui.planta)) S.ui.planta = plantas[0];
+  const P = S.ui.planta;
+  const plantBar = Pills(plantas.map(p => [p, p]), P, k => { S.ui.planta = k; render(); },
+    h('button', { class: 'pill', onclick: () => {
+      const n = (prompt('Nombre de la nueva planta (ej. "Planta 8"):') || '').trim(); if (!n) return;
+      if (v.CATALOGO[n]) return alert('Ya existe.');
+      v.CATALOGO[n] = { auditores: [], areas: [], departamentos: [] }; S.ui.planta = n; render(); dirty();
+    } }, '+ Planta'));
+  if (!P) return h('div', null, tabs, h('div', { class: 'card' }, plantBar, h('p', { class: 'muted' }, 'No hay plantas.')));
+  const c = v.CATALOGO[P]; ['auditores', 'areas', 'departamentos'].forEach(k => c[k] = c[k] || []);
+  const R = v.RESPONSABLES[P] = v.RESPONSABLES[P] || {};
+
+  const plantActions = h('div', { class: 'row', style: 'margin-bottom:6px' },
+    h('h2', { class: 'grow', style: 'margin:0' }, P),
+    h('button', { onclick: () => {
+      const n = (prompt('Nuevo nombre de la planta:', P) || '').trim(); if (!n || n === P) return;
+      if (v.CATALOGO[n]) return alert('Ya existe.');
+      v.CATALOGO = reorderObj({ ...v.CATALOGO, [n]: v.CATALOGO[P] }, plantas.map(x => x === P ? n : x));
+      if (v.RESPONSABLES[P]) { v.RESPONSABLES[n] = v.RESPONSABLES[P]; delete v.RESPONSABLES[P]; }
+      S.ui.planta = n; render(); dirty();
+    } }, 'Renombrar'),
+    h('button', { class: 'del', onclick: () => {
+      if (!confirm(`¿Eliminar ${P} con todos sus auditores, áreas y responsables?`)) return;
+      delete v.CATALOGO[P]; delete v.RESPONSABLES[P]; S.ui.planta = null; render(); dirty();
+    } }, 'Eliminar planta'));
+
+  return h('div', null, tabs,
+    h('div', { class: 'card' }, plantBar, plantActions,
+      h('p', { class: 'muted' }, 'Lo que edites aquí aparece en los menús de la auditoría 5S para esta planta.')),
+    h('div', { class: 'card' }, h('h3', null, 'Auditores'), ListEditor(() => c.auditores, { placeholder: 'Nombre del auditor', unit: 'auditores' })),
+    h('div', { class: 'card' }, h('h3', null, 'Áreas / zonas y su responsable'),
+      h('p', { class: 'muted', style: 'margin-bottom:8px' }, 'Si un área no tiene responsable, el auditor lo captura a mano. Correo = destinatario principal (TO); CC1/CC2 = copia.'),
+      AreasResp(c, R)),
+    h('div', { class: 'card' }, h('h3', null, 'Departamentos'), ListEditor(() => c.departamentos, { placeholder: 'Departamento', unit: 'departamentos' })));
+}
+function AreasResp(c, R) {
+  const box = h('div');
+  const draw = () => {
+    const areas = c.areas; const d = dupes(areas);
+    const respField = (area, k, ph) => h('input', { type: k === 'nombre' ? 'text' : 'email', value: (R[area] || {})[k] || '', placeholder: ph,
+      oninput: e => {
+        const r = R[area] = R[area] || { nombre: '', correo: '', cc1: '', cc2: '' }; r[k] = e.target.value.trim();
+        if (!r.nombre && !r.correo && !r.cc1 && !r.cc2) delete R[area]; dirty();
+      } });
+    const orphans = Object.keys(R).filter(k => !areas.includes(k));
+    const add = h('input', { type: 'text', placeholder: 'Nueva área (ej. "Zona 18 - Embarques")', onkeydown: e => { if (e.key === 'Enter') doAdd(); } });
+    function doAdd() { const n = add.value.trim(); if (!n) return; if (areas.some(a => lc(a) === lc(n))) return alert('Ya existe.'); areas.push(n); draw(); dirty(); }
+    box.replaceChildren(
+      h('div', { class: 'tblwrap' }, h('table', { class: 'tbl', style: 'min-width:820px' },
+        h('thead', null, h('tr', null, ['#', 'Área', 'Responsable', 'Correo', 'CC1', 'CC2', ''].map(t => h('th', null, t)))),
+        h('tbody', null, areas.map((a, i) => h('tr', null,
+          h('td', { class: 'muted' }, i + 1),
+          h('td', { style: 'width:26%' }, h('input', { type: 'text', value: a, class: d.has(lc(a)) ? 'dup' : '', onchange: e => {
+            const n = e.target.value.trim(); if (!n) { e.target.value = a; return; }
+            if (R[a]) { R[n] = R[a]; delete R[a]; } areas[i] = n; draw(); dirty();
+          } })),
+          h('td', null, respField(a, 'nombre', 'Nombre')), h('td', null, respField(a, 'correo', 'correo@daimayus.com')),
+          h('td', null, respField(a, 'cc1', '')), h('td', null, respField(a, 'cc2', '')),
+          h('td', { style: 'white-space:nowrap' },
+            h('button', { class: 'ic', disabled: i === 0, onclick: () => { moveIdx(areas, i, -1); draw(); dirty(); } }, '↑'),
+            h('button', { class: 'ic', disabled: i === areas.length - 1, onclick: () => { moveIdx(areas, i, 1); draw(); dirty(); } }, '↓'),
+            h('button', { class: 'ic del', onclick: () => { if (!confirm(`¿Quitar "${a}"?`)) return; areas.splice(i, 1); delete R[a]; draw(); dirty(); } }, '✕'))))))),
+      h('div', { class: 'row', style: 'margin-top:8px' }, h('div', { class: 'grow' }, add), h('button', { onclick: doAdd }, '+ Agregar área')),
+      orphans.length ? h('div', { class: 'msg warn', style: 'margin-top:10px' },
+        'Responsables de áreas que ya no existen (no se usan): ',
+        orphans.map(o => h('span', { class: 'row', style: 'display:inline-flex;margin:2px 6px' }, o, h('button', { class: 'ic', onclick: () => { delete R[o]; draw(); dirty(); } }, 'Borrar')))) : null);
+  };
+  draw(); return box;
+}
+
+/* ── LPA ────────────────────────────────────────────────────── */
+function lpaMeta() {
+  const v = S.file.vals;
+  const mapName = 'OPS_MAP' in v ? 'OPS_MAP' : 'OPS_ALIAS' in v ? 'OPS_ALIAS' : null;
+  const opsKeyOf = k => (mapName && v[mapName][k]) || k;
+  const qKeys = Object.keys(v.Q || {});
+  const leveled = qKeys.some(k => /_(1|2-4)$/.test(k));
+  return { v, mapName, opsKeyOf, leveled };
+}
+function viewLPA() {
+  const { v } = lpaMeta();
+  const tabs = Tabs([['auditores', 'Auditores'], ['areas', 'Áreas'], ['ops', 'Líneas / Operaciones'], ['preguntas', 'Preguntas'], ['general', 'General'], isAdmin() && ['avanzado', 'Avanzado']]);
+  let body;
+  switch (S.ui.tab) {
+    case 'auditores': body = lpaAuditores(); break;
+    case 'areas': body = lpaAreas(); break;
+    case 'ops': body = lpaOps(); break;
+    case 'preguntas': body = lpaPreguntas(); break;
+    case 'general': body = lpaGeneral(); break;
+    case 'avanzado': body = viewAdvanced(); break;
+  }
+  return h('div', null, h('div', { class: 'card', style: 'padding:10px 18px' }, h('b', null, S.app.nombre), h('span', { class: 'muted' }, ` · ${v.PLANTA || ''} · archivo ${S.file.path}`)), tabs, body);
+}
+function lpaAuditores() {
+  const v = S.file.vals; v.AUDITORES = v.AUDITORES || {};
+  const niveles = Object.keys(v.AUDITORES);
+  if (!niveles.includes(S.ui.nivel)) S.ui.nivel = niveles[0];
+  const N = S.ui.nivel; const lab = n => (v.NIVEL_LABELS && v.NIVEL_LABELS[n]) || 'Nivel ' + n;
+  return h('div', { class: 'card' },
+    Pills(niveles.map(n => [n, `${lab(n)} (${v.AUDITORES[n].length})`]), N, k => { S.ui.nivel = k; render(); }),
+    v.TIER_HINTS && v.TIER_HINTS[N] ? h('p', { class: 'muted', style: 'margin-bottom:8px' }, v.TIER_HINTS[N]) : null,
+    N ? ListEditor(() => v.AUDITORES[N], { placeholder: 'Nombre del auditor', unit: 'auditores' }) : h('p', { class: 'muted' }, 'Sin niveles.'));
+}
+function lpaAreas() {
+  const { v, mapName, opsKeyOf, leveled } = lpaMeta(); v.AREA_LABELS = v.AREA_LABELS || {}; v.OPERACIONES = v.OPERACIONES || {};
+  const keys = Object.keys(v.AREA_LABELS); const hasSin = 'AREAS_SIN_NIVEL1' in v;
+  const opsKeys = Object.keys(v.OPERACIONES);
+  const qStatus = k => {
+    const ks = leveled ? [k + '_1', k + '_2-4'] : [k];
+    return ks.map(q => { const n = (v.Q[q] || []).reduce((s, x) => s + (x.items || []).length, 0);
+      return h('span', { class: 'badge ' + (n ? 'b-ok' : 'b-warn'), style: 'margin-right:4px' }, (leveled ? (q.endsWith('_1') ? 'N1' : 'N2-4') + ': ' : '') + n); });
+  };
+  const add = h('input', { type: 'text', placeholder: 'Nombre de la nueva área (como aparece en el botón)', onkeydown: e => { if (e.key === 'Enter') doAdd(); } });
+  function doAdd() {
+    const label = add.value.trim(); if (!label) return;
+    let k = slug(label), i = 2; while (v.AREA_LABELS[k] || v.Q[k] || v.Q[k + '_1']) k = slug(label) + '_' + i++;
+    v.AREA_LABELS[k] = label;
+    if (mapName === 'OPS_MAP') v.OPS_MAP[k] = k;
+    if (!v.OPERACIONES[k]) v.OPERACIONES[k] = [];
+    render(); dirty();
+  }
+  return h('div', { class: 'card' },
+    h('p', { class: 'muted', style: 'margin-bottom:10px' }, 'Cada área es un botón en la página del LPA. "Líneas que usa" define qué lista de líneas/operaciones sale al auditar. Las preguntas se editan en la pestaña Preguntas.'),
+    h('div', { class: 'tblwrap' }, h('table', { class: 'tbl', style: 'min-width:700px' },
+      h('thead', null, h('tr', null, ['#', 'Nombre del área', 'Clave', 'Líneas que usa', hasSin ? 'Sin nivel 1' : null, 'Preguntas', ''].filter(x => x !== null).map(t => h('th', null, t)))),
+      h('tbody', null, keys.map((k, i) => h('tr', null,
+        h('td', { class: 'muted' }, i + 1),
+        h('td', null, TextIn(v.AREA_LABELS, k)),
+        h('td', null, h('code', null, k)),
+        h('td', null, h('select', { onchange: e => {
+          const val = e.target.value;
+          if (mapName === 'OPS_ALIAS') { if (val === k) delete v.OPS_ALIAS[k]; else v.OPS_ALIAS[k] = val; }
+          else if (mapName === 'OPS_MAP') v.OPS_MAP[k] = val;
+          dirty();
+        }, disabled: !mapName, title: mapName ? '' : 'En esta planta cada área usa su propia lista' },
+          [...new Set([opsKeyOf(k), ...opsKeys])].map(o => h('option', { value: o, selected: o === opsKeyOf(k) }, o + (v.OPERACIONES[o] ? '' : ' (no existe)'))))),
+        hasSin ? h('td', { style: 'text-align:center' }, h('input', { type: 'checkbox', checked: v.AREAS_SIN_NIVEL1.includes(k), onchange: e => {
+          const a = v.AREAS_SIN_NIVEL1; const j = a.indexOf(k); if (e.target.checked && j < 0) a.push(k); if (!e.target.checked && j >= 0) a.splice(j, 1); dirty();
+        } })) : null,
+        h('td', null, qStatus(k)),
+        h('td', { style: 'white-space:nowrap' },
+          h('button', { class: 'ic', disabled: i === 0, onclick: () => { const ks = keys.slice(); moveIdx(ks, i, -1); v.AREA_LABELS = reorderObj(v.AREA_LABELS, ks); render(); dirty(); } }, '↑'),
+          h('button', { class: 'ic', disabled: i === keys.length - 1, onclick: () => { const ks = keys.slice(); moveIdx(ks, i, 1); v.AREA_LABELS = reorderObj(v.AREA_LABELS, ks); render(); dirty(); } }, '↓'),
+          h('button', { class: 'ic del', onclick: () => {
+            if (!confirm(`¿Quitar el área "${v.AREA_LABELS[k]}"?\n(Sus preguntas y líneas no se borran; puedes borrarlas en sus pestañas.)`)) return;
+            delete v.AREA_LABELS[k]; if (mapName) delete v[mapName][k];
+            if (hasSin) { const j = v.AREAS_SIN_NIVEL1.indexOf(k); if (j >= 0) v.AREAS_SIN_NIVEL1.splice(j, 1); }
+            render(); dirty();
+          } }, '✕'))))))),
+    h('div', { class: 'row', style: 'margin-top:10px' }, h('div', { class: 'grow' }, add), h('button', { onclick: doAdd }, '+ Agregar área')));
+}
+function lpaOps() {
+  const { v, opsKeyOf } = lpaMeta(); v.OPERACIONES = v.OPERACIONES || {};
+  const keys = Object.keys(v.OPERACIONES);
+  if (!keys.includes(S.ui.ops)) S.ui.ops = keys[0];
+  const K = S.ui.ops;
+  const usedBy = o => Object.keys(v.AREA_LABELS || {}).filter(a => opsKeyOf(a) === o).map(a => v.AREA_LABELS[a]);
+  const bar = Pills(keys.map(k => { const u = usedBy(k); return [k, k + (u.length ? '' : ' ⚠ sin uso')]; }), K, k => { S.ui.ops = k; render(); },
+    h('button', { class: 'pill', onclick: () => {
+      const n = slug(prompt('Nombre (clave) de la nueva lista de líneas, ej. "costura":') || ''); if (!n || n === 'area') return;
+      if (v.OPERACIONES[n]) return alert('Ya existe.'); v.OPERACIONES[n] = []; S.ui.ops = n; render(); dirty();
+    } }, '+ Lista'));
+  if (!K) return h('div', { class: 'card' }, bar, h('p', { class: 'muted' }, 'No hay listas de líneas.'));
+  const groups = v.OPERACIONES[K]; const u = usedBy(K);
+  return h('div', null,
+    h('div', { class: 'card' }, bar,
+      h('div', { class: 'row' }, h('span', { class: 'muted grow' }, u.length ? 'La usan las áreas: ' + u.join(', ') : '⚠ Ninguna área usa esta lista. Asígnala en la pestaña Áreas o bórrala.'),
+        h('button', { class: 'del', onclick: () => { if (!confirm(`¿Borrar la lista "${K}" completa?` + (u.length ? `\nLa usan: ${u.join(', ')}` : ''))) return; delete v.OPERACIONES[K]; S.ui.ops = null; render(); dirty(); } }, 'Borrar lista'))),
+    groups.map((g, gi) => h('div', { class: 'card' },
+      h('div', { class: 'row', style: 'margin-bottom:8px' },
+        h('div', { class: 'grow' }, Field('Línea / grupo', TextIn(g, 'g', { placeholder: 'Ej. Línea 1' }))),
+        h('div', { style: 'align-self:flex-end' },
+          h('button', { class: 'ic', disabled: gi === 0, onclick: () => { moveIdx(groups, gi, -1); render(); dirty(); } }, '↑'), ' ',
+          h('button', { class: 'ic', disabled: gi === groups.length - 1, onclick: () => { moveIdx(groups, gi, 1); render(); dirty(); } }, '↓'), ' ',
+          h('button', { class: 'ic del', onclick: () => { if (!confirm(`¿Borrar la línea "${g.g}" y sus ${g.ops.length} operaciones?`)) return; groups.splice(gi, 1); render(); dirty(); } }, '✕'))),
+      h('label', { class: 'f' }, 'Operaciones'),
+      ListEditor(() => (g.ops = g.ops || []), { placeholder: 'Nueva operación', unit: 'operaciones', sortable: false }))),
+    h('div', { class: 'card' }, h('button', { onclick: () => { const n = (prompt('Nombre de la nueva línea / grupo:') || '').trim(); if (!n) return; groups.push({ g: n, ops: [] }); render(); dirty(); } }, '+ Agregar línea / grupo')));
+}
+function newId(qk) { return slug(qk).replace(/-/g, '_') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
+function lpaPreguntas() {
+  const { v, leveled } = lpaMeta(); v.Q = v.Q || {};
+  const base = k => leveled ? k.replace(/_(1|2-4)$/, '') : k;
+  const areas = [...new Set([...Object.keys(v.AREA_LABELS || {}), ...Object.keys(v.Q).map(base)])];
+  if (!areas.includes(S.ui.qa)) S.ui.qa = areas[0];
+  if (!S.ui.qn) S.ui.qn = '1';
+  const A = S.ui.qa, qk = leveled ? A + '_' + S.ui.qn : A;
+  const lab = a => (v.AREA_LABELS || {})[a] ? v.AREA_LABELS[a] : a + ' (sin área)';
+  const sel = h('div', { class: 'card' },
+    h('div', { class: 'row' },
+      h('div', { class: 'grow' }, Field('Área', h('select', { onchange: e => { S.ui.qa = e.target.value; S.ui.open = null; render(); } }, areas.map(a => h('option', { value: a, selected: a === A }, lab(a)))))),
+      leveled ? h('div', { style: 'min-width:180px' }, Field('Nivel', h('select', { onchange: e => { S.ui.qn = e.target.value; S.ui.open = null; render(); } },
+        h('option', { value: '1', selected: S.ui.qn === '1' }, 'Nivel 1'), h('option', { value: '2-4', selected: S.ui.qn === '2-4' }, 'Niveles 2, 3 y 4')))) : null),
+    h('p', { class: 'muted', style: 'margin-top:6px' }, 'Conjunto: ', h('code', null, qk)));
+  const secs = v.Q[qk];
+  if (!secs) {
+    const from = h('select', null, Object.keys(v.Q).map(k => h('option', { value: k }, k)));
+    return h('div', null, sel, h('div', { class: 'card' }, h('p', { style: 'margin-bottom:10px' }, 'Este conjunto todavía no tiene preguntas.'),
+      h('div', { class: 'row' }, h('button', { onclick: () => { v.Q[qk] = []; render(); dirty(); } }, 'Crear vacío'), h('span', { class: 'muted' }, 'o'),
+        from, h('button', { onclick: () => {
+          const c = clone(v.Q[from.value]); c.forEach(s => (s.items || []).forEach(it => it.id = newId(qk))); v.Q[qk] = c; render(); dirty();
+        } }, 'Copiar de este'))));
+  }
+  const colors = v.CAT_COLORS || {};
+  const total = secs.reduce((s, x) => s + (x.items || []).length, 0);
+  return h('div', null, sel,
+    h('div', { class: 'card row' }, h('span', { class: 'grow muted' }, `${secs.length} secciones · ${total} preguntas · ${secs.reduce((s, x) => s + (x.items || []).filter(i => i.crit).length, 0)} críticas`),
+      h('button', { class: 'del', onclick: () => { if (!confirm(`¿Borrar TODAS las preguntas de ${qk}?`)) return; delete v.Q[qk]; render(); dirty(); } }, 'Borrar conjunto')),
+    secs.map((s, si) => h('div', { class: 'box sec', style: colors[s.cls] ? 'border-left-color:' + colors[s.cls][1] : '' },
+      h('div', { class: 'row' },
+        h('div', { class: 'grow', style: 'min-width:220px' }, Field('Sección', TextIn(s, 'sec'))),
+        h('div', { style: 'width:110px' }, Field('Ícono', TextIn(s, 'ico'))),
+        Object.keys(colors).length ? h('div', { style: 'width:120px' }, Field('Color', h('select', { onchange: e => { s.cls = e.target.value; render(); dirty(); } },
+          Object.keys(colors).map(c => h('option', { value: c, selected: c === s.cls }, c))))) : null,
+        h('div', { style: 'align-self:flex-end' },
+          h('button', { class: 'ic', disabled: si === 0, onclick: () => { moveIdx(secs, si, -1); render(); dirty(); } }, '↑'), ' ',
+          h('button', { class: 'ic', disabled: si === secs.length - 1, onclick: () => { moveIdx(secs, si, 1); render(); dirty(); } }, '↓'), ' ',
+          h('button', { class: 'ic del', onclick: () => { if (!confirm(`¿Borrar la sección "${s.sec}" con ${(s.items || []).length} preguntas?`)) return; secs.splice(si, 1); render(); dirty(); } }, '✕'))),
+      (s.items = s.items || []).map((it, ii) => QItem(s.items, it, ii)),
+      h('button', { style: 'margin-top:6px', onclick: () => {
+        const it = { id: newId(qk), dept: '', elem: '', crit: false, desc: '', plan: '' }; s.items.push(it); S.ui.open = it.id; render(); dirty();
+      } }, '+ Pregunta'))),
+    h('div', { class: 'card' }, h('button', { onclick: () => {
+      const n = (prompt('Título de la nueva sección:') || '').trim(); if (!n) return;
+      secs.push({ sec: n, cls: Object.keys(colors)[0] || 'co', ico: String(secs.length + 1), items: [] }); render(); dirty();
+    } }, '+ Agregar sección')));
+}
+function QItem(items, it, ii) {
+  const open = S.ui.open === it.id;
+  const title = h('span', { class: 't' }, `${ii + 1}. ${it.elem || '(sin elemento)'}`, h('span', { class: 'muted' }, it.dept ? ' — ' + it.dept : ''));
+  return h('div', { class: 'item' },
+    h('div', { class: 'hd', onclick: () => { S.ui.open = open ? null : it.id; render(); } },
+      h('span', null, open ? '▾' : '▸'), title,
+      it.crit ? h('span', { class: 'badge b-crit' }, 'CRÍTICA') : null,
+      h('span', { onclick: e => e.stopPropagation() },
+        h('button', { class: 'ic', disabled: ii === 0, onclick: () => { moveIdx(items, ii, -1); render(); dirty(); } }, '↑'), ' ',
+        h('button', { class: 'ic', disabled: ii === items.length - 1, onclick: () => { moveIdx(items, ii, 1); render(); dirty(); } }, '↓'), ' ',
+        h('button', { class: 'ic del', onclick: () => { if (!confirm('¿Borrar esta pregunta?')) return; items.splice(ii, 1); render(); dirty(); } }, '✕'))),
+    open ? h('div', { class: 'bd' },
+      h('div', { class: 'row' },
+        h('div', { class: 'grow', style: 'min-width:200px' }, Field('Elemento', TextIn(it, 'elem'))),
+        h('div', { class: 'grow', style: 'min-width:200px' }, Field('Departamento', TextIn(it, 'dept')))),
+      Field('Pregunta / qué verificar', Area(it, 'desc', { rows: 4 })),
+      h('div', { class: 'row', style: 'margin-top:6px' },
+        h('label', { class: 'row', style: 'gap:6px;font-weight:600' }, h('input', { type: 'checkbox', checked: it.crit, onchange: e => { it.crit = e.target.checked; render(); dirty(); } }), 'Pregunta crítica'),
+        h('div', { class: 'grow' }, TextIn(it, 'plan', { placeholder: 'Plan / acción sugerida (opcional)' }))),
+      h('p', { class: 'muted', style: 'margin-top:6px' }, 'ID: ', h('code', null, it.id))) : null);
+}
+function lpaGeneral() {
+  const v = S.file.vals;
+  return h('div', { class: 'card' }, h('h2', null, 'General'),
+    'PLANTA' in v ? Field('Nombre de la planta', TextIn(v, 'PLANTA')) : null,
+    'EMAIL_DESTINO' in v ? Field('Correo que recibe las auditorías', TextIn(v, 'EMAIL_DESTINO')) : null,
+    v.NIVEL_LABELS ? [h('h3', { style: 'margin-top:14px' }, 'Niveles'),
+      Object.keys(v.NIVEL_LABELS).map(n => h('div', { class: 'box' },
+        Field('Nombre del nivel ' + n, TextIn(v.NIVEL_LABELS, n)),
+        v.TIER_HINTS && n in v.TIER_HINTS ? Field('Descripción', Area(v.TIER_HINTS, n, { rows: 2 })) : null))] : null);
+}
+/* Avanzado: editar cualquier constante como JSON (solo admins) */
+function viewAdvanced() {
+  const v = S.file.vals; const names = Object.keys(v);
+  if (!names.includes(S.ui.adv)) S.ui.adv = names[0];
+  const ta = h('textarea', { rows: 22, style: 'font-family:Consolas,monospace;font-size:12px', value: JSON.stringify(v[S.ui.adv], null, 2) });
+  return h('div', { class: 'card' }, h('h2', null, 'Avanzado (JSON)'),
+    h('p', { class: 'muted', style: 'margin-bottom:8px' }, 'Para casos especiales. Edita el valor, da "Aplicar" y luego "Guardar y publicar".'),
+    h('select', { onchange: e => { S.ui.adv = e.target.value; render(); } }, names.map(n => h('option', { value: n, selected: n === S.ui.adv }, n + (changedNames().includes(n) ? ' •' : '')))),
+    h('div', { style: 'margin-top:8px' }, ta),
+    h('div', { class: 'row', style: 'margin-top:8px' }, h('button', { class: 'pri', onclick: () => {
+      try { v[S.ui.adv] = JSON.parse(ta.value); S.msg = ['ok', 'Aplicado a ' + S.ui.adv + '. Falta guardar.']; render(); }
+      catch (e) { alert('JSON inválido: ' + e.message); }
+    } }, 'Aplicar')));
+}
+
+/* ── Permisos ───────────────────────────────────────────────── */
+function viewPerm() {
+  const P = S.perm; P.admins = P.admins || []; P.apps = P.apps || [];
+  return h('div', null,
+    h('div', { class: 'card' }, h('h2', null, 'Admins'),
+      h('p', { class: 'muted', style: 'margin-bottom:8px' }, 'Usuarios de GitHub que pueden editar todo, incluidos estos permisos.'),
+      ListEditor(() => P.admins, { placeholder: 'usuario de GitHub', unit: 'admins' })),
+    P.apps.map((a, i) => h('div', { class: 'card' },
+      h('div', { class: 'row', style: 'margin-bottom:6px' }, h('h2', { class: 'grow', style: 'margin:0' }, a.nombre || '(sin nombre)'),
+        h('button', { class: 'ic del', onclick: () => { if (!confirm(`¿Quitar "${a.nombre}" del editor? (No borra archivos.)`)) return; P.apps.splice(i, 1); render(); dirty(); } }, '✕')),
+      h('div', { class: 'row' },
+        h('div', { class: 'grow' }, Field('Nombre', TextIn(a, 'nombre'))),
+        h('div', { class: 'grow' }, Field('Archivo de configuración', TextIn(a, 'archivo'))),
+        h('div', { class: 'grow' }, Field('Página', TextIn(a, 'pagina'))),
+        h('div', { style: 'width:110px' }, Field('Tipo', h('select', { onchange: e => { a.tipo = e.target.value; dirty(); } },
+          ['5s', 'lpa'].map(t => h('option', { value: t, selected: a.tipo === t }, t.toUpperCase())))))),
+      h('label', { class: 'f', style: 'margin-top:10px' }, 'Editores de esta app (usuario de GitHub)'),
+      ListEditor(() => (a.editores = a.editores || []), { placeholder: 'usuario de GitHub', unit: 'editores' }))),
+    h('div', { class: 'card' },
+      h('button', { onclick: () => { P.apps.push({ id: 'app_' + Date.now().toString(36), nombre: 'Nueva app', tipo: 'lpa', archivo: 'config_lpa_.js', pagina: '', editores: [] }); render(); dirty(); } }, '+ Agregar app'),
+      h('p', { class: 'muted', style: 'margin-top:10px' }, 'Importante: además de estar aquí, cada persona debe ser colaborador del repositorio en GitHub (Settings › Collaborators) para poder guardar.')));
+}
+
+/* ── Inicio ─────────────────────────────────────────────────── */
+(function init() {
+  if (typeof acorn === 'undefined') { S.msg = ['err', 'No se pudo cargar un componente (acorn). Revisa tu conexión a internet y recarga.']; render(); return; }
+  let t = null; try { t = localStorage.getItem(LS_TOKEN); } catch (e) {}
+  if (t) { S.view = 'loading'; render(); login(t); } else render();
+})();
+</script>
+</body>
+</html>
