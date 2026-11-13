@@ -37,7 +37,9 @@
       "tipo": "lpa",
       "archivo": "config_lpa_p34.js",
       "pagina": "lpa_p34.html",
-      "editores": []
+      "editores": [
+        "idaliarmtz-boop"
+      ]
     },
     {
       "id": "lpa_p67",
