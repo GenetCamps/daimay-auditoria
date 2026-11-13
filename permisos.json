@@ -1,7 +1,8 @@
 {
   "_nota": "Usuarios de GitHub. Los admins editan todo (incluido este archivo). Cada editor solo edita las apps donde aparece. Se edita desde admin.html > Permisos.",
   "admins": [
-    "GenetCamps"
+    "GenetCamps",
+    "pmaltos01"
   ],
   "apps": [
     {
